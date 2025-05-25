@@ -8,13 +8,13 @@ app = Flask(__name__)
 
 
 model_paths = {
-    "RandomForest": "saved_models/random_forest.pkl",
-    "XGBoost": "saved_models/xgboost.pkl",
-    "LogisticRegression": "saved_models/logistic_regression.pkl",
-    "MLP": "saved_models/mlp.pkl",
+    "random-forest": "saved_models/random_forest.pkl",
+    "xg-boost": "saved_models/xgboost.pkl",
+    "logistic-regression": "saved_models/logistic_regression.pkl",
+    "mlp": "saved_models/mlp.pkl",
 }
 
-models = load_models(model_paths)
+trained_models, model_metrics = load_models(model_paths)
 
 @app.route('/')
 def home():
@@ -28,9 +28,25 @@ def predict():
 
         preprocessed_data = preprocessing(data)
                 
-        predictions = predict_with_models(models, preprocessed_data)
+        predictions = predict_with_models(trained_models, preprocessed_data)
         
         return jsonify(predictions)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+    
+@app.route('/metrics', methods=['GET'])
+def metrics():
+    try:
+        return jsonify(model_metrics)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.route('/metrics/<model_name>', methods=['GET'])
+def model_metrics_route(model_name):
+    try:
+        if model_name not in model_metrics:
+            return jsonify({"error": "Model not found"}), 404
+        return jsonify(model_metrics[model_name])
     except Exception as e:
         return jsonify({"error": str(e)}), 400
     
