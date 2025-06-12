@@ -1,5 +1,5 @@
 data/*
-models/lib/*
+models/lib/visualization.py
 backend/saved_models/*
 __pycache__/
 .DS_Store
