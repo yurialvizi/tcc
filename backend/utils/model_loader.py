@@ -1,11 +1,16 @@
 import joblib
+import os
 from typing import Dict
 
 def load_models(model_paths) -> tuple[Dict, Dict]:
+    base_dir = os.path.dirname(__file__)
     models = {}
     metrics = {}
+    shap = {}
     for name, path in model_paths.items():
-        data = joblib.load(path)
+        full_path = os.path.join(base_dir, '..', path)
+        data = joblib.load(full_path)
         models[name] = data['model']
         metrics[name] = data['metrics']
-    return models, metrics
+        shap[name] = data['shap']
+    return models, metrics, shap

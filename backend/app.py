@@ -2,10 +2,13 @@ from datetime import datetime
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from utils.model_loader import load_models
-from utils.predictor import predict_with_models, preprocessing
+from utils.predictor import predict_with_models
+from utils.helper import preprocessing
+from utils.shap import generate_waterfall_plot
 import pandas as pd
 import numpy as np
-import os
+import matplotlib
+matplotlib.use('Agg')
 
 app = Flask(__name__)
 CORS(app)
@@ -17,7 +20,7 @@ model_paths = {
     "mlp": "saved_models/mlp.pkl",
 }
 
-trained_models, model_metrics = load_models(model_paths)
+trained_models, model_metrics, shap = load_models(model_paths)
 
 @app.route('/')
 def home():
@@ -27,7 +30,6 @@ def home():
 def predict():
     try:
         data = request.get_json()
-        print("Received Data: ", data)
 
         preprocessed_data = preprocessing(data)
                 
@@ -45,7 +47,7 @@ def metrics():
         return jsonify({"error": str(e)}), 400
 
 @app.route('/metrics/<model_name>', methods=['GET'])
-def model_metrics_route(model_name):
+def metrics_of_model(model_name):
     try:
         if model_name not in model_metrics:
             return jsonify({"error": "Model not found"}), 404
@@ -53,6 +55,44 @@ def model_metrics_route(model_name):
     except Exception as e:
         return jsonify({"error": str(e)}), 400
     
+    
+@app.route('/shap/plots/<model_name>', methods=['GET'])
+def shap_plots(model_name):
+    try:
+        if model_name not in shap:
+            return jsonify({"error": "Model not found"}), 404
+        
+        summary_plot_b64 = shap[model_name].get('summary_plot')
+        shap_importance_b64 = shap[model_name].get('shap_importance')
+
+        return jsonify({
+            "summary_plot": summary_plot_b64,
+            "shap_importance": shap_importance_b64
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+    
+@app.route('/shap/waterfall/<model_name>', methods=['POST'])
+def shap_waterfall(model_name):
+    try:
+        if model_name not in shap:
+            return jsonify({"error": "Model not found"}), 404
+        
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+        
+        validated_sample = preprocessing(data)
+        
+        waterfall_plot_b64 = generate_waterfall_plot(trained_models[model_name], validated_sample, model_name, shap[model_name].get('masker'))
+        
+        return jsonify({"waterfall_plot": waterfall_plot_b64})
+    except Exception as e:
+        print(f"Error generating SHAP waterfall plot: {e}")
+        return jsonify({"error": str(e)}), 400
+
+
 def get_value_counts(df, columns, top_n=None):
     result = {}
     for col in columns:
@@ -105,4 +145,4 @@ def analyze():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5001, debug=True)
