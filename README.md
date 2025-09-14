@@ -1,41 +1,69 @@
-# Project Name
+# Projeto de Formatura 2025 — Grupo 6 - Engenharia de Computação — Poli USP
 
-Description
+Este repositório contém o trabalho de formatura do **Grupo 6** de 2025, composto por **Yuri, Isabelle e Beatriz**, do curso de **Engenharia de Computação da Escola Politécnica da USP**.  
 
-## 📦 Running Locally
+---
 
-To run this project on your machine, follow these steps:
+## 📌 Descrição do Projeto
 
-### 1. Install Dependencies
+O objetivo deste trabalho é realizar uma **análise comparativa entre os principais algoritmos de machine learning e redes neurais aplicados ao processo de concessão de crédito para pessoas físicas**.  
 
-Make sure you have Python installed. Then, install the required packages using:
+O projeto foi estruturado em três grandes etapas:  
 
-```bash
-pip install -r requirements.txt
-```
+1. **Pré-processamento e análise exploratória dos dados**:  
+   - Tratamento do conjunto de dados utilizado.  
+   - Garantia de consistência e qualidade das informações.  
 
-### 2. Verify the Dataset
+2. **Treinamento de modelos**:  
+   - Diferentes algoritmos de classificação foram treinados individualmente.  
+   - Métricas de desempenho foram extraídas para avaliação comparativa.  
 
-Ensure the file `synthetic_sample.csv` is present in the `data/` directory. The path should look like this:
+3. **Análise comparativa com ATAM (Architecture Tradeoff Analysis Method)**:  
+   - Comparação abrangente dos modelos.  
+   - Consideração de desempenho, aspectos técnicos e operacionais no contexto de concessão de crédito.
 
-```
-tcc/
-├── data/
-│   └── synthetic_sample.csv
-├── models/
 
-```
+A fim de expor os resultados e ilustrar como diferentes algoritmos de Inteligência Artificial podem ser usados num cenário de concessão de crédito para pessoas físicas, o grupo também propõe uma plataforma web, cujo código pode ser encontrado neste repositório.
 
-### 3. Run the Notebooks
+---
 
-Open the notebook of your choice from the project and execute the cells to explore the data and analyses.
+## 📂 Estrutura do Repositório
 
-## 🚀 Running on Google Colab
 
-You can also run the notebooks directly in Google Colab without setting up anything locally.
+- **`models/`**  
+  Contém os códigos de treinamento dos modelos de machine learning e redes neurais, além das métricas obtidas.  
 
-### Steps:
+- **`backend/`**  
+  API desenvolvida em Flask, responsável por:  
+  - Expor as métricas de desempenho dos modelos.
+  - Disponibilizar os modelos treinados para receber dados de entrada e gerar previsões.
+  - Integrar com o frontend, permitindo que usuários façam simulações de análise de crédito.
 
-1. Open the notebook you want to run in the GitHub repository.
-2. Click the **"Open in Colab"** button at the top of the notebook.
-3. Make sure to either have the `synthetic_sample.csv` file in the root of your Google Drive, or upload the file manually to the Colab environment after modifying the code accordingly.
+- **`frontend/`**  
+  Aplicação web desenvolvida em React, responsável por:  
+  - Apresentar os resultados obtidos.  
+  - Permitir a simulação da análise comparativa dos modelos (entrada de dados de um usuário e retorno da classificação de cada algoritmo — **bom ou mau pagador**).  
+
+Cada uma dessas pastas contém seu próprio **README** com instruções detalhadas de instalação, configuração e execução.  
+
+---
+
+## 🚀 Como rodar o projeto
+
+Para informações sobre como executar cada parte do sistema:  
+
+- [Frontend](./frontend/README.md)  
+- [Backend](./backend/README.md)  
+- [Models](./models/README.md)  
+
+---
+
+## 👥 Equipe
+
+- **Yuri de Sene Alvizi**  
+- **Isabelle Ritter Vargas**  
+- **Beatri Pama de Vasconcelos**  
+
+---
+
+⚡️ Esse projeto representa a consolidação dos conhecimentos adquiridos durante a graduação e aplica conceitos de **machine learning, engenharia de software, arquitetura de sistemas e análise de trade-offs** em um problema real de relevância prática: a concessão de crédito.  

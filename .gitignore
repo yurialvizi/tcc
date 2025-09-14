@@ -1,5 +1,12 @@
-data/*
-models/lib/visualization.py
-backend/saved_models/*
+# General 
 __pycache__/
 .DS_Store
+
+# Backend
+backend/saved_models/*
+
+# Frontend
+
+# Models
+models/lib/visualization.py
+models/data/*
