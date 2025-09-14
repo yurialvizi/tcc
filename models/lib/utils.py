@@ -46,9 +46,10 @@ def get_metrics_dict(confusion_matrix, classification_report):
         "classification_report": classification_report,
     }
 
-def save_to_pickle(model, metrics, shap, path):
+def save_to_pickle(model, metrics, shap, path, scaler=None):
     joblib.dump({
         "model": model,
         "metrics": make_serializable(metrics),
-        "shap": make_serializable(shap)
+        "shap": make_serializable(shap),
+        "scaler": scaler
     }, path)
