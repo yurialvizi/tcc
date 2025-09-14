@@ -2,8 +2,6 @@
 
 Este repositório contém o trabalho de formatura do **Grupo 6** de 2025, composto por **Yuri, Isabelle e Beatriz**, do curso de **Engenharia de Computação da Escola Politécnica da USP**.  
 
----
-
 ## 📌 Descrição do Projeto
 
 O objetivo deste trabalho é realizar uma **análise comparativa entre os principais algoritmos de machine learning e redes neurais aplicados ao processo de concessão de crédito para pessoas físicas**.  
@@ -25,8 +23,6 @@ O projeto foi estruturado em três grandes etapas:
 
 A fim de expor os resultados e ilustrar como diferentes algoritmos de Inteligência Artificial podem ser usados num cenário de concessão de crédito para pessoas físicas, o grupo também propõe uma plataforma web, cujo código pode ser encontrado neste repositório.
 
----
-
 ## 📂 Estrutura do Repositório
 
 
@@ -46,7 +42,7 @@ A fim de expor os resultados e ilustrar como diferentes algoritmos de Inteligên
 
 Cada uma dessas pastas contém seu próprio **README** com instruções detalhadas de instalação, configuração e execução.  
 
----
+
 
 ## 🚀 Como rodar o projeto
 
@@ -56,9 +52,9 @@ Para informações sobre como executar cada parte do sistema:
 - [Backend](./backend/README.md)  
 - [Models](./models/README.md)  
 
----
 
-## 👥 Equipe
+
+## 👥 Alunos
 
 - **Yuri de Sene Alvizi**  
 - **Isabelle Ritter Vargas**  
