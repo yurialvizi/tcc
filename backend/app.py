@@ -20,7 +20,7 @@ model_paths = {
     "mlp": "saved_models/mlp.pkl",
 }
 
-trained_models, model_metrics, shap = load_models(model_paths)
+trained_models, model_metrics, shap, scalers = load_models(model_paths)
 
 @app.route('/')
 def home():
@@ -33,7 +33,7 @@ def predict():
 
         preprocessed_data = preprocessing(data)
                 
-        predictions = predict_with_models(trained_models, preprocessed_data)
+        predictions = predict_with_models(trained_models, preprocessed_data, scalers)
         
         return jsonify(predictions)
     except Exception as e:
@@ -85,7 +85,7 @@ def shap_waterfall(model_name):
         
         validated_sample = preprocessing(data)
         
-        waterfall_plot_b64 = generate_waterfall_plot(trained_models[model_name], validated_sample, model_name, shap[model_name].get('masker'))
+        waterfall_plot_b64 = generate_waterfall_plot(trained_models[model_name], validated_sample, model_name, shap[model_name].get('masker'), scalers.get(model_name))
         
         return jsonify({"waterfall_plot": waterfall_plot_b64})
     except Exception as e:
