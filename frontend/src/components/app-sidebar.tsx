@@ -78,18 +78,18 @@ const data = {
         },
       ],
     },
-    {
-      title: "Simulador",
-      url: "#",
-      icon: Cpu,
-      isActive: true,
-      items: [
         {
           title: "Simulador",
           url: "#",
+          icon: Cpu,
+          isActive: true,
+          items: [
+            {
+              title: "Simulador",
+              url: "/simulator",
+            },
+          ],
         },
-      ],
-    },
   ],
   projects: [
     {
