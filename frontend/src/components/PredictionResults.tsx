@@ -68,9 +68,9 @@ export function PredictionResults({ results }: PredictionResultsProps) {
         </p>
       </div>
 
-      <div className="grid gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {Object.entries(results).map(([modelKey, prediction]) => {
-          if (modelKey === 'error') return null;
+          if (modelKey === 'error' || !prediction) return null;
           
           const modelName = modelNames[modelKey as keyof typeof modelNames] || modelKey;
           const Icon = getPredictionIcon(prediction);

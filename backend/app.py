@@ -92,6 +92,37 @@ def shap_waterfall(model_name):
         print(f"Error generating SHAP waterfall plot: {e}")
         return jsonify({"error": str(e)}), 400
 
+@app.route('/shap/waterfall', methods=['POST'])
+def shap_waterfall_all():
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+        
+        validated_sample = preprocessing(data)
+        
+        waterfall_plots = {}
+        
+        for model_name in trained_models.keys():
+            try:
+                waterfall_plot_b64 = generate_waterfall_plot(
+                    trained_models[model_name], 
+                    validated_sample, 
+                    model_name, 
+                    shap[model_name].get('masker'), 
+                    scalers.get(model_name)
+                )
+                waterfall_plots[model_name] = waterfall_plot_b64
+            except Exception as e:
+                print(f"Error generating SHAP waterfall for {model_name}: {e}")
+                waterfall_plots[model_name] = None
+        
+        return jsonify({"waterfall_plots": waterfall_plots})
+    except Exception as e:
+        print(f"Error generating SHAP waterfall plots: {e}")
+        return jsonify({"error": str(e)}), 400
+
 
 def get_value_counts(df, columns, top_n=None):
     result = {}

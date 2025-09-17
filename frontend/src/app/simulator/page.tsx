@@ -10,9 +10,11 @@ import {
 } from "@/components/ui/sidebar";
 import { PredictorForm } from "@/components/PredictorForm";
 import { PredictionResults } from "@/components/PredictionResults";
+import { SHAPWaterfall } from "@/components/SHAPWaterfall";
 
 export default function SimulatorPage() {
   const [results, setResults] = useState<Record<string, string> | { error: string } | null>(null);
+  const [inputData, setInputData] = useState<Record<string, any> | null>(null);
 
   return (
     <SidebarProvider>
@@ -29,28 +31,55 @@ export default function SimulatorPage() {
           </div>
         </header>
         
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Form Section */}
-            <div className="space-y-4">
-              <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
-                <div className="p-6">
-                  <h2 className="text-xl font-semibold mb-4">Dados do Cliente</h2>
-                  <PredictorForm onResultsChange={setResults} />
+        <div className="flex flex-1 flex-col gap-8 p-4 pt-0 overflow-y-auto">
+          {/* Form Section - Top */}
+          <div className="space-y-4">
+            <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+              <div className="p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">1</div>
+                  <h2 className="text-xl font-semibold">Dados do Cliente</h2>
                 </div>
+                <PredictorForm 
+                  onResultsChange={setResults} 
+                  onInputDataChange={setInputData}
+                />
               </div>
             </div>
-            
-            {/* Results Section */}
+          </div>
+          
+          {/* Results Section - Middle */}
+          {results && (
             <div className="space-y-4">
               <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
                 <div className="p-6">
-                  <h2 className="text-xl font-semibold mb-4">Resultados da Predição</h2>
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">2</div>
+                    <h2 className="text-xl font-semibold">Resultados da Predição</h2>
+                  </div>
                   <PredictionResults results={results} />
                 </div>
               </div>
             </div>
-          </div>
+          )}
+          
+          {/* SHAP Explanations Section - Bottom */}
+          {results && !results.error && inputData && (
+            <div className="space-y-4">
+              <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+                <div className="p-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">3</div>
+                    <h2 className="text-xl font-semibold">Explicações SHAP</h2>
+                  </div>
+                  <SHAPWaterfall 
+                    inputData={inputData} 
+                    predictions={results as Record<string, string>} 
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </SidebarInset>
     </SidebarProvider>

@@ -60,9 +60,10 @@ const initialFormData: FormData = {
 
 interface PredictorFormProps {
   onResultsChange: (results: Record<string, string> | { error: string }) => void;
+  onInputDataChange: (inputData: Record<string, any>) => void;
 }
 
-export function PredictorForm({ onResultsChange }: PredictorFormProps) {
+export function PredictorForm({ onResultsChange, onInputDataChange }: PredictorFormProps) {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -78,6 +79,9 @@ export function PredictorForm({ onResultsChange }: PredictorFormProps) {
     setIsLoading(true);
     
     try {
+      // Pass input data to parent for SHAP visualization
+      onInputDataChange(formData);
+      
       const response = await fetch('http://127.0.0.1:5001/predict', {
         method: 'POST',
         headers: {

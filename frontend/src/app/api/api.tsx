@@ -118,3 +118,72 @@ export function getRisk(data: AnalyzeData) {
 export function getTelephone(data: AnalyzeData) {
   return data?.numericalDistributions?.telephone || {};
 }
+
+export interface ShapWaterfallResponse {
+  waterfall_plot: string;
+  error?: string;
+}
+
+export interface ShapWaterfallAllResponse {
+  waterfall_plots: Record<string, string | null>;
+  error?: string;
+}
+
+export async function fetchShapWaterfall(
+  modelName: string, 
+  inputData: Record<string, string | number>
+): Promise<ShapWaterfallResponse> {
+  try {
+    const res = await fetch(`http://127.0.0.1:5001/shap/waterfall/${modelName}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(inputData),
+    });
+
+    if (!res.ok) {
+      throw new Error(`HTTP error! Status: ${res.status}`);
+    }
+
+    const data = await res.json();
+    return {
+      waterfall_plot: data.waterfall_plot || '',
+    };
+  } catch (error: unknown) {
+    console.error("Failed to fetch SHAP waterfall:", error);
+    return {
+      waterfall_plot: '',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
+export async function fetchShapWaterfallAll(
+  inputData: Record<string, string | number>
+): Promise<ShapWaterfallAllResponse> {
+  try {
+    const res = await fetch('http://127.0.0.1:5001/shap/waterfall', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(inputData),
+    });
+
+    if (!res.ok) {
+      throw new Error(`HTTP error! Status: ${res.status}`);
+    }
+
+    const data = await res.json();
+    return {
+      waterfall_plots: data.waterfall_plots || {},
+    };
+  } catch (error: unknown) {
+    console.error("Failed to fetch SHAP waterfalls:", error);
+    return {
+      waterfall_plots: {},
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
