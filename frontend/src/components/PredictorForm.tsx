@@ -66,16 +66,81 @@ interface PredictorFormProps {
 export function PredictorForm({ onResultsChange, onInputDataChange }: PredictorFormProps) {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleInputChange = (field: keyof FormData, value: string | number) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
+    
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+    
+    // Required string fields
+    const requiredStringFields: (keyof FormData)[] = [
+      'sex', 'marrital_status', 'job', 'present_employee_since', 
+      'housing', 'property', 'checking_account', 'savings', 
+      'purpose', 'guarantors', 'other_installment_plans'
+    ];
+    
+    requiredStringFields.forEach(field => {
+      if (!formData[field] || formData[field] === '') {
+        newErrors[field] = 'Este campo é obrigatório';
+      }
+    });
+    
+    // Required numeric fields
+    const requiredNumericFields: (keyof FormData)[] = [
+      'age', 'n_of_liables', 'foreign_worker', 'telephone',
+      'present_residence_since', 'credit_history', 'duration',
+      'credit_amount', 'credits_at_bank'
+    ];
+    
+    requiredNumericFields.forEach(field => {
+      const value = formData[field];
+      if (value === undefined || value === null || value === 0) {
+        newErrors[field] = 'Este campo é obrigatório';
+      } else if (typeof value === 'number' && value < 0) {
+        newErrors[field] = 'Valor deve ser positivo';
+      }
+    });
+    
+    // Specific validations
+    if (formData.age && (formData.age < 18 || formData.age > 100)) {
+      newErrors.age = 'Idade deve estar entre 18 e 100 anos';
+    }
+    
+    if (formData.credit_amount && formData.credit_amount < 0) {
+      newErrors.credit_amount = 'Valor do crédito deve ser positivo';
+    }
+    
+    if (formData.duration && (formData.duration < 1 || formData.duration > 120)) {
+      newErrors.duration = 'Duração deve estar entre 1 e 120 meses';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate form before submission
+    if (!validateForm()) {
+      return;
+    }
+    
     setIsLoading(true);
     
     try {
@@ -114,7 +179,7 @@ export function PredictorForm({ onResultsChange, onInputDataChange }: PredictorF
           <div>
             <Label htmlFor="sex">Sexo</Label>
             <Select value={formData.sex} onValueChange={(value) => handleInputChange('sex', value)}>
-              <SelectTrigger>
+              <SelectTrigger className={errors.sex ? 'border-red-500' : ''}>
                 <SelectValue placeholder="Selecione o sexo" />
               </SelectTrigger>
               <SelectContent>
@@ -122,6 +187,9 @@ export function PredictorForm({ onResultsChange, onInputDataChange }: PredictorF
                 <SelectItem value="female">Feminino</SelectItem>
               </SelectContent>
             </Select>
+            {errors.sex && (
+              <p className="text-sm text-red-500 mt-1">{errors.sex}</p>
+            )}
           </div>
 
           <div>
@@ -132,7 +200,11 @@ export function PredictorForm({ onResultsChange, onInputDataChange }: PredictorF
               value={formData.age || ''}
               onChange={(e) => handleInputChange('age', parseInt(e.target.value) || 0)}
               placeholder="Digite a idade"
+              className={errors.age ? 'border-red-500' : ''}
             />
+            {errors.age && (
+              <p className="text-sm text-red-500 mt-1">{errors.age}</p>
+            )}
           </div>
         </div>
 
@@ -146,6 +218,7 @@ export function PredictorForm({ onResultsChange, onInputDataChange }: PredictorF
               <SelectContent>
                 <SelectItem value="single">Solteiro(a)</SelectItem>
                 <SelectItem value="married/widowed">Casado(a)/Viúvo(a)</SelectItem>
+                <SelectItem value="divorced">Divorciado(a)</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -243,6 +316,7 @@ export function PredictorForm({ onResultsChange, onInputDataChange }: PredictorF
               <SelectContent>
                 <SelectItem value="own">Própria</SelectItem>
                 <SelectItem value="rent">Alugada</SelectItem>
+                <SelectItem value="for free">Gratuita</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -267,6 +341,7 @@ export function PredictorForm({ onResultsChange, onInputDataChange }: PredictorF
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="real estate">Imóvel</SelectItem>
+              <SelectItem value="building society / life insurance">Sociedade de Construção/Seguro de Vida</SelectItem>
               <SelectItem value="car or other">Carro ou outro</SelectItem>
               <SelectItem value="unk. / no property">Desconhecido/Sem propriedade</SelectItem>
             </SelectContent>
@@ -320,7 +395,11 @@ export function PredictorForm({ onResultsChange, onInputDataChange }: PredictorF
               value={formData.credit_amount || ''}
               onChange={(e) => handleInputChange('credit_amount', parseInt(e.target.value) || 0)}
               placeholder="Valor em DM"
+              className={errors.credit_amount ? 'border-red-500' : ''}
             />
+            {errors.credit_amount && (
+              <p className="text-sm text-red-500 mt-1">{errors.credit_amount}</p>
+            )}
           </div>
 
           <div>
@@ -374,11 +453,12 @@ export function PredictorForm({ onResultsChange, onInputDataChange }: PredictorF
               <SelectContent>
                 <SelectItem value="new car">Carro novo</SelectItem>
                 <SelectItem value="used car">Carro usado</SelectItem>
-                <SelectItem value="furniture/equipment">Móveis/Equipamentos</SelectItem>
-                <SelectItem value="radio/television">Rádio/Televisão</SelectItem>
                 <SelectItem value="domestic appliances">Eletrodomésticos</SelectItem>
-                <SelectItem value="repairs">Reparos</SelectItem>
+                <SelectItem value="business">Negócios</SelectItem>
+                <SelectItem value="radio/television">Rádio/Televisão</SelectItem>
                 <SelectItem value="education">Educação</SelectItem>
+                <SelectItem value="furniture/equipment">Móveis/Equipamentos</SelectItem>
+                <SelectItem value="repairs">Reparos</SelectItem>
                 <SelectItem value="retraining">Reciclagem</SelectItem>
                 <SelectItem value="others">Outros</SelectItem>
               </SelectContent>
@@ -394,6 +474,7 @@ export function PredictorForm({ onResultsChange, onInputDataChange }: PredictorF
               <SelectContent>
                 <SelectItem value="none">Nenhum</SelectItem>
                 <SelectItem value="guarantor">Tem fiador</SelectItem>
+                <SelectItem value="co-applicant">Co-solicitante</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -408,6 +489,7 @@ export function PredictorForm({ onResultsChange, onInputDataChange }: PredictorF
             <SelectContent>
               <SelectItem value="none">Nenhum</SelectItem>
               <SelectItem value="stores">Lojas</SelectItem>
+              <SelectItem value="bank">Banco</SelectItem>
             </SelectContent>
           </Select>
         </div>
