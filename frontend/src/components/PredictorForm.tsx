@@ -11,6 +11,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Info } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface FormData {
   sex: string;
@@ -129,6 +136,10 @@ export function PredictorForm({ onResultsChange, onInputDataChange }: PredictorF
       newErrors.duration = 'Duração deve estar entre 1 e 120 meses';
     }
     
+    if (formData.credit_history && (formData.credit_history < 1 || formData.credit_history > 5)) {
+      newErrors.credit_history = 'Histórico de crédito deve estar entre 1 e 5';
+    }
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -170,7 +181,8 @@ export function PredictorForm({ onResultsChange, onInputDataChange }: PredictorF
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <TooltipProvider>
+      <form onSubmit={handleSubmit} className="space-y-4">
       {/* Personal Information */}
       <div className="space-y-4">
         <h3 className="text-lg font-medium">Informações Pessoais</h3>
@@ -334,7 +346,18 @@ export function PredictorForm({ onResultsChange, onInputDataChange }: PredictorF
         </div>
 
         <div>
-          <Label htmlFor="property">Propriedade</Label>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="property">Propriedade</Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+              <Info className="h-4 w-4 text-gray-300 cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Tipo de propriedade que o solicitante possui</p>
+                <p className="text-xs text-gray-300 mt-1">Imóvel, veículo, seguro de vida ou nenhuma</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
           <Select value={formData.property} onValueChange={(value) => handleInputChange('property', value)}>
             <SelectTrigger>
               <SelectValue placeholder="Selecione a propriedade" />
@@ -388,7 +411,18 @@ export function PredictorForm({ onResultsChange, onInputDataChange }: PredictorF
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="credit_amount">Valor do Crédito</Label>
+            <div className="flex items-center gap-2">
+              <Label htmlFor="credit_amount">Valor do Crédito</Label>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="h-4 w-4 text-gray-300 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Valor solicitado para o crédito em DM (Deutsche Mark)</p>
+                  <p className="text-xs text-gray-300 mt-1">Valores típicos: 250-19.000 DM</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
             <Input
               id="credit_amount"
               type="number"
@@ -403,7 +437,18 @@ export function PredictorForm({ onResultsChange, onInputDataChange }: PredictorF
           </div>
 
           <div>
-            <Label htmlFor="duration">Duração (meses)</Label>
+            <div className="flex items-center gap-2">
+              <Label htmlFor="duration">Duração (meses)</Label>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="h-4 w-4 text-gray-300 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Prazo para pagamento do crédito em meses</p>
+                  <p className="text-xs text-gray-300 mt-1">Valores típicos: 4-72 meses</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
             <Input
               id="duration"
               type="number"
@@ -416,18 +461,44 @@ export function PredictorForm({ onResultsChange, onInputDataChange }: PredictorF
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="credit_history">Histórico de Crédito</Label>
+            <div className="flex items-center gap-2">
+              <Label htmlFor="credit_history">Histórico de Crédito</Label>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="h-4 w-4 text-gray-300 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Classificação do histórico de crédito</p>
+                  <p className="text-xs text-gray-300 mt-1">1=Nenhum crédito/pagos, 2=Todos pagos neste banco, 3=Créditos pagos até agora, 4=Atraso no passado, 5=Conta crítica/outros créditos</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
             <Input
               id="credit_history"
               type="number"
               value={formData.credit_history || ''}
               onChange={(e) => handleInputChange('credit_history', parseInt(e.target.value) || 0)}
               placeholder="Histórico de crédito"
+              className={errors.credit_history ? 'border-red-500' : ''}
             />
+            {errors.credit_history && (
+              <p className="text-sm text-red-500 mt-1">{errors.credit_history}</p>
+            )}
           </div>
 
           <div>
-            <Label htmlFor="credits_at_bank">Créditos no Banco</Label>
+            <div className="flex items-center gap-2">
+              <Label htmlFor="credits_at_bank">Créditos no Banco</Label>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="h-4 w-4 text-gray-300 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Número de créditos existentes no banco</p>
+                  <p className="text-xs text-gray-300 mt-1">Valores típicos: 1-4 créditos</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
             <Input
               id="credits_at_bank"
               type="number"
@@ -481,7 +552,18 @@ export function PredictorForm({ onResultsChange, onInputDataChange }: PredictorF
         </div>
 
         <div>
-          <Label htmlFor="other_installment_plans">Outros Planos de Pagamento</Label>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="other_installment_plans">Outros Planos de Pagamento</Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-gray-300 cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Outros planos de pagamento em prestações</p>
+                <p className="text-xs text-gray-300 mt-1">Nenhum, lojas ou banco</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
           <Select value={formData.other_installment_plans} onValueChange={(value) => handleInputChange('other_installment_plans', value)}>
             <SelectTrigger>
               <SelectValue placeholder="Selecione" />
@@ -498,6 +580,7 @@ export function PredictorForm({ onResultsChange, onInputDataChange }: PredictorF
       <Button type="submit" className="w-full" disabled={isLoading}>
         {isLoading ? "Processando..." : "Fazer Predição"}
       </Button>
-    </form>
+      </form>
+    </TooltipProvider>
   );
 }
