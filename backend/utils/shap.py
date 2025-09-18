@@ -4,6 +4,7 @@ import io
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from .helper import TRAINED_FEATURES
 
 def generate_waterfall_plot(trained_model, sample, model_name, masker=None, scaler=None):
     """
@@ -37,13 +38,20 @@ def generate_waterfall_plot(trained_model, sample, model_name, masker=None, scal
         shap_values = explainer(sample_scaled)
     else:
         explainer = shap.Explainer(trained_model)
-        shap_values = explainer(np.array(sample))
+        # Reshape sample to 2D for XGBoost compatibility
+        sample_2d = np.array(sample).reshape(1, -1)
+        shap_values = explainer(sample_2d)
 
-    sample_shap_value = shap_values[0]
     if model_name in ['random-forest', 'mlp']:
-        sample_shap_value = shap_values[0,:,1]
+        # For Random Forest and MLP, we need the positive class (class 1) SHAP values
+        if len(shap_values.shape) == 3:  # MLP case: (1, n_features, 2)
+            sample_shap_value = shap_values[0,:,1]
+        else:  # Random Forest case: (n_features, 2)
+            sample_shap_value = shap_values[:,1]
+    else:
+        sample_shap_value = shap_values[0]
 
-    # Create waterfall plot with feature names for MLP and Logistic Regression models
+    # Create waterfall plot with feature names for all models
     if model_name == 'mlp':
         scaler = trained_model.named_steps['scaler']
         # Create a SHAP values object with feature names
@@ -59,6 +67,24 @@ def generate_waterfall_plot(trained_model, sample, model_name, masker=None, scal
             values=sample_shap_value,
             feature_names=scaler.feature_names_in_,
             data=sample_scaled
+        )
+        shap.plots.waterfall(sample_shap_value_with_names, max_display=10, show=False)
+    elif model_name == 'random-forest':
+        # For Random Forest, create a new Explanation object with feature names
+        sample_shap_value_with_names = shap.Explanation(
+            values=shap_values.values[0,:,1],  # Use the values for class 1 (first sample, all features, class 1)
+            base_values=shap_values.base_values[0, 1],  # Use the base value for class 1
+            feature_names=TRAINED_FEATURES,
+            data=np.array(sample).flatten()
+        )
+        shap.plots.waterfall(sample_shap_value_with_names, max_display=10, show=False)
+    elif model_name == 'xg-boost':
+        # For XGBoost, create a new Explanation object with feature names
+        sample_shap_value_with_names = shap.Explanation(
+            values=shap_values.values[0],  # XGBoost has shape (1, n_features)
+            base_values=shap_values.base_values[0],  # XGBoost has shape (1,)
+            feature_names=TRAINED_FEATURES,
+            data=np.array(sample).flatten()
         )
         shap.plots.waterfall(sample_shap_value_with_names, max_display=10, show=False)
     else:
