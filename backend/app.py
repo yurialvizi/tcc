@@ -83,7 +83,8 @@ def shap_waterfall(model_name):
         if not data:
             return jsonify({"error": "No data provided"}), 400
         
-        validated_sample = preprocessing(data)
+        validated_sample_df = preprocessing(data)
+        validated_sample = validated_sample_df.values[0]  # Convert DataFrame to numpy array
         
         waterfall_plot_b64 = generate_waterfall_plot(trained_models[model_name], validated_sample, model_name, shap[model_name].get('masker'), scalers.get(model_name))
         
@@ -100,7 +101,8 @@ def shap_waterfall_all():
         if not data:
             return jsonify({"error": "No data provided"}), 400
         
-        validated_sample = preprocessing(data)
+        validated_sample_df = preprocessing(data)
+        validated_sample = validated_sample_df.values[0]  # Convert DataFrame to numpy array
         
         waterfall_plots = {}
         
