@@ -4,10 +4,7 @@ import io
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import json
-import os
 import random
-from datetime import datetime
 from .helper import TRAINED_FEATURES
 
 def set_deterministic_seeds():
@@ -16,33 +13,6 @@ def set_deterministic_seeds():
     random.seed(42)
     # Note: torch.manual_seed(42) would be needed if using PyTorch models
 
-def save_debug_info(model_name, sample, shap_values, sample_shap_value, timestamp):
-    """Save debug information for waterfall plot generation"""
-    debug_dir = "debug_waterfall"
-    os.makedirs(debug_dir, exist_ok=True)
-    
-    # Create debug data
-    debug_data = {
-        "timestamp": timestamp,
-        "model_name": model_name,
-        "sample": sample.tolist() if isinstance(sample, np.ndarray) else sample,
-        "sample_shape": sample.shape if hasattr(sample, 'shape') else len(sample),
-        "shap_values_shape": shap_values.shape if hasattr(shap_values, 'shape') else str(type(shap_values)),
-        "shap_values_base_values": shap_values.base_values.tolist() if hasattr(shap_values.base_values, 'tolist') else str(shap_values.base_values),
-        "sample_shap_value_shape": sample_shap_value.shape if hasattr(sample_shap_value, 'shape') else str(type(sample_shap_value)),
-        "sample_shap_value": sample_shap_value.tolist() if hasattr(sample_shap_value, 'tolist') else str(sample_shap_value),
-        "sample_shap_value_type": str(type(sample_shap_value)),
-        "feature_names": TRAINED_FEATURES,
-        "feature_count": len(TRAINED_FEATURES)
-    }
-    
-    # Save to file
-    filename = f"{debug_dir}/waterfall_debug_{model_name}_{timestamp}.json"
-    with open(filename, 'w') as f:
-        json.dump(debug_data, f, indent=2)
-    
-    print(f"Debug info saved to: {filename}")
-    return filename
 
 def generate_logistic_regression_waterfall(trained_model, sample, scaler, masker):
     """Generate waterfall plot for Logistic Regression model"""
@@ -153,9 +123,7 @@ def generate_waterfall_plot(trained_model, sample, model_name, masker=None, scal
         masker: Optional masker for SHAP explainer
         scaler: Optional scaler for models that need scaling
     """
-    # Generate timestamp for debug logging
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-    print(f"Generating waterfall plot for {model_name} at {timestamp}")
+    print(f"Generating waterfall plot for {model_name}")
     print(f"Sample shape: {sample.shape if hasattr(sample, 'shape') else len(sample)}")
     print(f"Sample values: {sample[:5]}...")
     
@@ -171,8 +139,6 @@ def generate_waterfall_plot(trained_model, sample, model_name, masker=None, scal
     else:
         raise ValueError(f"Unknown model name: {model_name}")
     
-    # Save debug information
-    debug_file = save_debug_info(model_name, sample, shap_values, sample_shap_value, timestamp)
     print(f"SHAP values shape: {shap_values.shape}")
     print(f"Sample SHAP value shape: {sample_shap_value.shape}")
     
@@ -193,22 +159,9 @@ def generate_waterfall_plot(trained_model, sample, model_name, masker=None, scal
     img_b64 = base64.b64encode(img_bytes.read()).decode('utf-8')
     plt.close(fig)
 
-    # Save final result info
-    result_info = {
-        "timestamp": timestamp,
-        "model_name": model_name,
-        "result_length": len(img_b64),
-        "result_hash": hash(img_b64),  # Simple hash to detect changes
-        "debug_file": debug_file
-    }
-    
-    result_filename = f"debug_waterfall/waterfall_result_{model_name}_{timestamp}.json"
-    with open(result_filename, 'w') as f:
-        json.dump(result_info, f, indent=2)
     
     print(f"Waterfall plot generated successfully!")
     print(f"Result length: {len(img_b64)}")
     print(f"Result hash: {hash(img_b64)}")
-    print(f"Debug files saved: {debug_file}, {result_filename}")
 
     return img_b64
