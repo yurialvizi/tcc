@@ -169,8 +169,8 @@ export function SHAPWaterfall({ inputData, predictions }: SHAPWaterfallProps) {
                             <div className="text-xs text-muted-foreground space-y-1">
                               <p><strong>Interpretação:</strong></p>
                               <ul className="list-disc list-inside space-y-1 ml-2">
-                                <li>Barras vermelhas: fatores que aumentam o risco de inadimplência</li>
-                                <li>Barras azuis: fatores que diminuem o risco de inadimplência</li>
+                                <li>Barras vermelhas: fatores que diminuem o risco de inadimplência</li>
+                                <li>Barras azuis: fatores que aumentam o risco de inadimplência</li>
                                 <li>O tamanho da barra indica a magnitude do impacto</li>
                                 <li>A linha mostra como cada fator contribui para a decisão final</li>
                               </ul>
