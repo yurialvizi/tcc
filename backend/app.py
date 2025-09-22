@@ -14,9 +14,9 @@ app = Flask(__name__)
 CORS(app)
 
 model_paths = {
+    "logistic-regression": "saved_models/logistic_regression.pkl",
     "random-forest": "saved_models/random_forest.pkl",
     "xg-boost": "saved_models/xgboost.pkl",
-    "logistic-regression": "saved_models/logistic_regression.pkl",
     "mlp": "saved_models/mlp.pkl",
 }
 

@@ -57,16 +57,16 @@ const data = {
       isActive: true,
       items: [
         {
+          title: "Regressão Logística",
+          url: "/models/Regression",
+        },
+        {
           title: "Random Forest",
           url: "/models/RandomForest",
         },
         {
           title: "XGBoost",
           url: "/models/XGBoost",
-        },
-        {
-          title: "Regressão Logística",
-          url: "/models/Regression",
         },
         {
           title: "MLP",

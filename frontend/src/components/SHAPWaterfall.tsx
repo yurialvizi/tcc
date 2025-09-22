@@ -13,9 +13,9 @@ interface SHAPWaterfallProps {
 }
 
 const modelNames = {
+  'logistic-regression': 'Regressão Logística',
   'random-forest': 'Random Forest',
   'xg-boost': 'XGBoost',
-  'logistic-regression': 'Regressão Logística',
   'mlp': 'MLP (Rede Neural)'
 };
 
@@ -120,7 +120,10 @@ export function SHAPWaterfall({ inputData, predictions }: SHAPWaterfallProps) {
             </div>
 
             <div className="grid gap-4">
-              {Object.entries(waterfallData.waterfall_plots).map(([modelKey, waterfallPlot]) => {
+              {['logistic-regression', 'random-forest', 'xg-boost', 'mlp']
+                .filter(modelKey => waterfallData.waterfall_plots[modelKey])
+                .map((modelKey) => {
+                  const waterfallPlot = waterfallData.waterfall_plots[modelKey];
                 const modelName = modelNames[modelKey as keyof typeof modelNames] || modelKey;
                 const prediction = predictions[modelKey];
                 const isExpanded = expandedModels.has(modelKey);
