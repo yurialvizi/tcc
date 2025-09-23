@@ -84,7 +84,7 @@ export function SHAPWaterfall({ inputData, predictions }: SHAPWaterfallProps) {
           <Button 
             onClick={handleGenerateWaterfalls}
             disabled={isLoading}
-            className="px-8 py-2"
+            className="px-8 py-2 bg-[#4538FF] hover:bg-[#372ccc] text-white"
             size="lg"
           >
             {isLoading ? (
@@ -94,7 +94,7 @@ export function SHAPWaterfall({ inputData, predictions }: SHAPWaterfallProps) {
               </>
             ) : (
               <>
-                <BarChart3 className="h-5 w-5 mr-2" />
+                <BarChart3 className="h-5 w-5 mr-2 bg-[#4538FF]" />
                 Gerar Explicações
               </>
             )}

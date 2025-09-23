@@ -333,13 +333,13 @@ export function PredictorForm({
           <h3 className="text-lg font-medium">Informações Pessoais</h3>
 
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="sex">Sexo</Label>
+            <div >
+              <Label  htmlFor="sex">Sexo</Label>
               <Select
                 value={formData.sex}
                 onValueChange={(value) => handleInputChange("sex", value)}
               >
-                <SelectTrigger className={errors.sex ? "border-red-500" : ""}>
+                <SelectTrigger className={(errors.sex ? "border-red-500" : "") + " mt-2"}>
                   <SelectValue placeholder="Selecione o sexo" />
                 </SelectTrigger>
                 <SelectContent>
@@ -362,7 +362,7 @@ export function PredictorForm({
                   handleInputChange("age", parseInt(e.target.value) || 0)
                 }
                 placeholder="Digite a idade"
-                className={errors.age ? "border-red-500" : ""}
+                className={(errors.age ? "border-red-500" : "") + " mt-2"}
               />
               {errors.age && (
                 <p className="text-sm text-red-500 mt-1">{errors.age}</p>
@@ -379,7 +379,7 @@ export function PredictorForm({
                   handleInputChange("marrital_status", value)
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="mt-2">
                   <SelectValue placeholder="Selecione o estado civil" />
                 </SelectTrigger>
                 <SelectContent>
@@ -405,6 +405,7 @@ export function PredictorForm({
                   )
                 }
                 placeholder="Número de dependentes"
+                className="mt-2"
               />
             </div>
           </div>
@@ -421,7 +422,7 @@ export function PredictorForm({
                 value={formData.job}
                 onValueChange={(value) => handleInputChange("job", value)}
               >
-                <SelectTrigger>
+                <SelectTrigger className="mt-2">
                   <SelectValue placeholder="Selecione o tipo de emprego" />
                 </SelectTrigger>
                 <SelectContent>
@@ -449,7 +450,7 @@ export function PredictorForm({
                   handleInputChange("present_employee_since", value)
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="mt-2">
                   <SelectValue placeholder="Selecione o tempo" />
                 </SelectTrigger>
                 <SelectContent>
@@ -472,7 +473,7 @@ export function PredictorForm({
                   handleInputChange("foreign_worker", parseInt(value))
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="mt-2">
                   <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
                 <SelectContent>
@@ -490,7 +491,7 @@ export function PredictorForm({
                   handleInputChange("telephone", parseInt(value))
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="mt-2">
                   <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
                 <SelectContent>
@@ -513,7 +514,7 @@ export function PredictorForm({
                 value={formData.housing}
                 onValueChange={(value) => handleInputChange("housing", value)}
               >
-                <SelectTrigger>
+                <SelectTrigger className="mt-2">
                   <SelectValue placeholder="Selecione o tipo" />
                 </SelectTrigger>
                 <SelectContent>
@@ -539,6 +540,7 @@ export function PredictorForm({
                   )
                 }
                 placeholder="Anos na residência atual"
+                className="mt-2"
               />
             </div>
           </div>
@@ -562,7 +564,7 @@ export function PredictorForm({
               value={formData.property}
               onValueChange={(value) => handleInputChange("property", value)}
             >
-              <SelectTrigger>
+              <SelectTrigger className="mt-2">
                 <SelectValue placeholder="Selecione a propriedade" />
               </SelectTrigger>
               <SelectContent>
@@ -592,7 +594,7 @@ export function PredictorForm({
                   handleInputChange("checking_account", value)
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="mt-2">
                   <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
                 <SelectContent>
@@ -612,7 +614,7 @@ export function PredictorForm({
                 value={formData.savings}
                 onValueChange={(value) => handleInputChange("savings", value)}
               >
-                <SelectTrigger>
+                <SelectTrigger className="mt-2">
                   <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
                 <SelectContent>
@@ -629,10 +631,10 @@ export function PredictorForm({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <div className="flex items-center gap-2">
-                <Label htmlFor="credit_amount">Valor do Crédito</Label>
+                <Label htmlFor="credit_amount">Valor do Crédito</Label >
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Info className="h-4 w-4 text-gray-300 cursor-help" />
+                    <Info className="h-4 w-4 text-gray-300 cursor-help"  />
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Valor solicitado para o crédito em DM (Deutsche Mark)</p>
@@ -653,7 +655,7 @@ export function PredictorForm({
                   )
                 }
                 placeholder="Valor em DM"
-                className={errors.credit_amount ? "border-red-500" : ""}
+                className={(errors.credit_amount ? "border-red-500" : ""  ) + " mt-2"}
               />
               {errors.credit_amount && (
                 <p className="text-sm text-red-500 mt-1">
@@ -685,6 +687,7 @@ export function PredictorForm({
                   handleInputChange("duration", parseInt(e.target.value) || 0)
                 }
                 placeholder="Duração em meses"
+                className="mt-2"
               />
             </div>
           </div>
@@ -718,7 +721,7 @@ export function PredictorForm({
                   )
                 }
                 placeholder="Histórico de crédito"
-                className={errors.credit_history ? "border-red-500" : ""}
+                className={(errors.credit_history ? "border-red-500" : "") + " mt-2"}
               />
               {errors.credit_history && (
                 <p className="text-sm text-red-500 mt-1">
@@ -753,6 +756,7 @@ export function PredictorForm({
                   )
                 }
                 placeholder="Número de créditos"
+                className="mt-2"
               />
             </div>
           </div>
@@ -769,7 +773,7 @@ export function PredictorForm({
                 value={formData.purpose}
                 onValueChange={(value) => handleInputChange("purpose", value)}
               >
-                <SelectTrigger>
+                <SelectTrigger className="mt-2">
                   <SelectValue placeholder="Selecione a finalidade" />
                 </SelectTrigger>
                 <SelectContent>
@@ -801,7 +805,7 @@ export function PredictorForm({
                   handleInputChange("guarantors", value)
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="mt-2">
                   <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
                 <SelectContent>
@@ -836,7 +840,7 @@ export function PredictorForm({
                 handleInputChange("other_installment_plans", value)
               }
             >
-              <SelectTrigger>
+              <SelectTrigger className="mt-2">
                 <SelectValue placeholder="Selecione" />
               </SelectTrigger>
               <SelectContent>
@@ -848,7 +852,7 @@ export function PredictorForm({
           </div>
         </div>
 
-        <Button type="submit" className="w-full" disabled={isLoading}>
+        <Button type="submit" className="w-full bg-[#4538FF] hover:bg-[#372ccc] text-white" disabled={isLoading}>
           {isLoading ? "Processando..." : "Fazer Predição"}
         </Button>
       </form>

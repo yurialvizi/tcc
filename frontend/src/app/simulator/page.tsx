@@ -37,7 +37,7 @@ export default function SimulatorPage() {
             <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
               <div className="p-6">
                 <div className="flex items-center gap-2 mb-4">
-                  <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">1</div>
+                  <div className="w-8 h-8 rounded-full bg-[#4538FF] text-primary-foreground flex items-center justify-center text-sm font-semibold">1</div>
                   <h2 className="text-xl font-semibold">Dados do Cliente</h2>
                 </div>
                 <PredictorForm 
@@ -54,7 +54,7 @@ export default function SimulatorPage() {
               <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
                 <div className="p-6">
                   <div className="flex items-center gap-2 mb-4">
-                    <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">2</div>
+                    <div className="w-8 h-8 rounded-full bg-[#4538FF] text-primary-foreground flex items-center justify-center text-sm font-semibold">2</div>
                     <h2 className="text-xl font-semibold">Resultados da Predição</h2>
                   </div>
                   <PredictionResults results={results} />
@@ -69,7 +69,7 @@ export default function SimulatorPage() {
               <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
                 <div className="p-6">
                   <div className="flex items-center gap-2 mb-4">
-                    <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">3</div>
+                    <div className="w-8 h-8 rounded-full bg-[#4538FF] text-primary-foreground flex items-center justify-center text-sm font-semibold">3</div>
                     <h2 className="text-xl font-semibold">Explicações SHAP</h2>
                   </div>
                   <SHAPWaterfall 
