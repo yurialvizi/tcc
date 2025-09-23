@@ -1,4 +1,6 @@
+"use client";
 // app/page.tsx ou similar
+import { useEffect, useRef } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -6,6 +8,57 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+
+function MathBlock({ tex }: { tex: string }) {
+  const ref = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    async function loadAndRender() {
+      if (!ref.current) return;
+      // Load KaTeX CSS + JS from CDN if not present
+      if (!document.getElementById('katex-css')) {
+        const link = document.createElement('link');
+        link.id = 'katex-css';
+        link.rel = 'stylesheet';
+        link.href = 'https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css';
+        document.head.appendChild(link);
+      }
+      if (!(window as any).katex) {
+        try {
+          await new Promise<void>((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js';
+            script.async = true;
+            script.onload = () => resolve();
+            script.onerror = () => reject(new Error('Failed to load KaTeX'));
+            document.head.appendChild(script);
+          });
+        } catch (e) {
+          console.warn('Could not load KaTeX:', e);
+          if (ref.current) ref.current.textContent = tex;
+          return;
+        }
+      }
+
+      try {
+        const katex = (window as any).katex;
+        if (mounted && ref.current) {
+          ref.current.innerHTML = '';
+          katex.render(tex, ref.current, { displayMode: true, throwOnError: false });
+        }
+      } catch (e) {
+        console.warn('KaTeX render error', e);
+        if (ref.current) ref.current.textContent = tex;
+      }
+    }
+
+    loadAndRender();
+    return () => { mounted = false; };
+  }, [tex]);
+
+  return <div ref={ref} className="mb-3 text-sm" />;
+}
 
 export default function Page() {
   return (
@@ -23,128 +76,39 @@ export default function Page() {
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <div className="bg-neutral-50 min-h-[100vh] flex-1 rounded-xl md:min-h-min p-6 items-start">
-            <h1 className="text-4xl font-bold mb-1">Matriz de Confusão</h1>
-            <div className="flex flex-col md:flex-row gap-6 w-full">
-              <div className="overflow-x-auto p-2">
-                <table className="table-auto border-collapse border border-neutral-400 text-center text-sm">
-                  <thead>
-                    <tr>
-                      <th className="px-2 py-2"></th>
-                      <th className="px-2 py-2"></th>
-                      <th
-                        colSpan={2}
-                        className="border border-neutral-400 px-4 py-1 font-bold"
-                      >
-                        VALOR PREDITO
-                      </th>
-                    </tr>
-                    <tr>
-                      <th className="px-4 py-2"></th>
-                      <th className="px-4 py-2"></th>
-                      <th className="border border-neutral-400 px-4 py-1 font-semibold">
-                        Sim
-                      </th>
-                      <th className="border border-neutral-400 px-4 py-1 font-semibold">
-                        Não
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <th
-                        rowSpan={2}
-                        className="border border-neutral-400 px-2 py-1 font-bold text-black align-middle"
-                        style={{
-                          writingMode: "vertical-rl",
-                          transform: "rotate(180deg)",
-                        }}
-                      >
-                        REAL
-                      </th>
-                      <td className="border border-neutral-400 px-4 py-1 font-semibold">
-                        Sim
-                      </td>
-                      <td className="border border-neutral-400 px-4 py-1 bg-neutral-200">
-                        Verdadeiro Positivo
-                        <br />
-                        (TP)
-                      </td>
-                      <td className="border border-neutral-400 px-4 py-1 bg-neutral-300">
-                        Falso Negativo
-                        <br />
-                        (FN)
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="border border-neutral-400 px-4 py-1 font-semibold">
-                        Não
-                      </td>
-                      <td className="border border-neutral-400 px-4 py-1 bg-neutral-300">
-                        Falso Positivo
-                        <br />
-                        (FP)
-                      </td>
-                      <td className="border border-neutral-400 px-4 py-1 bg-neutral-200">
-                        Verdadeiro Negativo
-                        <br />
-                        (TN)
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div className="p-2 w-full md:w-[600px]">
-                <h2 className="text-lg  mb-2">Onde:</h2>
-                <ul className="list-disc list-inside space-y-2">
-                  <li>TP (Verdadeiro Positivo): o cliente é um bom pagador e foi classificado corretamente como bom pagador;</li>
-                  <li>FP (Falso Positivo): o cliente é um mau pagador, mas foi classificado incorretamente como bom pagador;</li>
-                  <li>FN (Falso Negativo): o cliente é um bom pagador, mas foi classificado incorretamente como mau pagador;</li>
-                  <li>TN (Verdadeiro Negativo): o cliente é um mau pagador e foi classificado corretamente como mau pagador;</li>
-                </ul>
-              </div>
-            </div>
-          </div>
+         
 
-          <div className="grid auto-rows-min gap-4 md:grid-cols-2">
+          <div className="">
             <div className="bg-neutral-50 rounded-xl p-6 flex flex-col items-start">
               <h2 className="text-2xl font-bold mb-3">Métricas de Classificação</h2>
-              <p className="mb-3">Abaixo estão as métricas mais utilizadas para avaliar classificadores binários no contexto de risco de crédito.</p>
-              <ul className="list-disc list-inside space-y-2">
-                <li>
-                  <strong>Precision (Precisão):</strong> proporção de verdadeiros positivos entre todas as previsões positivas. Indica o quão confiáveis são as predições positivas do modelo.
-                </li>
-                <li>
-                  <strong>Recall (Revocação / Sensibilidade):</strong> proporção de verdadeiros positivos entre todos os positivos reais. Mede a capacidade do modelo de identificar casos positivos.
-                </li>
-                <li>
-                  <strong>F1-score:</strong> média harmônica entre precision e recall. Útil quando há desequilíbrio entre classes.
-                </li>
-                <li>
-                  <strong>Support:</strong> número de amostras reais de cada classe no conjunto avaliado. Importante para interpretar a confiança das métricas.
-                </li>
-                <li>
-                  <strong>Accuracy (Acurácia):</strong> proporção de predições corretas sobre o total. Pode ser enganosa em datasets desbalanceados.
-                </li>
-                <li>
-                  <strong>Macro Average:</strong> média aritmética das métricas calculadas por classe (tratando classes igualmente), útil para avaliar desempenho independente do balanceamento.
-                </li>
-                <li>
-                  <strong>Weighted Average:</strong> média das métricas onde cada classe contribui proporcionalmente ao seu suporte (tamanho). Reflete melhor o desempenho global quando classes têm tamanhos diferentes.
-                </li>
-              </ul>
-            </div>
 
-            <div className="bg-neutral-50 rounded-xl p-6 flex flex-col items-start">
-              <h2 className="text-2xl font-bold mb-3">Interpretando a Matriz de Confusão</h2>
-              <p className="mb-2">A matriz de confusão resume os acertos e erros do classificador. A interpretação prática no contexto de concessão de crédito:</p>
-              <ul className="list-disc list-inside space-y-2">
-                <li><strong>Verdadeiros Positivos (TP):</strong> clientes corretamente aprovados — objetivo desejado quando administrável.</li>
-                <li><strong>Falsos Positivos (FP):</strong> clientes aprovados que deveriam ser negados — representam risco de perda financeira (inadimplência).</li>
-                <li><strong>Falsos Negativos (FN):</strong> clientes negados que teriam pago — representam custo de oportunidade.</li>
-                <li><strong>Verdadeiros Negativos (TN):</strong> clientes corretamente negados — reduz exposição ao risco.</li>
-              </ul>
-              <p className="mt-3">Exemplo de trade-off: reduzir FP reduz perdas por inadimplência, mas pode aumentar FN (recusar clientes bons). A escolha do limiar e do modelo depende do custo relativo desses erros.</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                <div>
+                  <h3 className="text-lg font-semibold mt-2">Acurácia</h3>
+                  <p className="mb-3">A acurácia constitui uma métrica global de desempenho preditivo, representando a proporção de classificações corretas realizadas pelo algoritmo em relação ao total de casos avaliados:</p>
+                    <MathBlock tex={"\\mathrm{Acurácia} = \\frac{TP + TN}{N}"} />
+
+                  <h3 className="text-lg font-semibold mt-2">Recall (Sensibilidade)</h3>
+                  <p className="mb-3">O recall, também denominado sensibilidade, quantifica a capacidade do modelo de identificar corretamente os casos positivos (bons pagadores) em relação ao total de casos positivos reais:</p>
+                    <MathBlock tex={"\\mathrm{Recall} = \\frac{TP}{TP + FN}"} />
+
+                  <h3 className="text-lg font-semibold mt-2">F1-Score</h3>
+                  <p className="mb-3">O F1-score representa uma medida entre precisão e recall, oferecendo uma métrica sintética que equilibra ambos os aspectos:</p>
+                    <MathBlock tex={"\\mathrm{F1\\text{-}Score} = 2 \\times \\frac{\\mathrm{Precisão} \\times \\mathrm{Recall}}{\\mathrm{Precisão} + \\mathrm{Recall}}"} />
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-semibold mt-2">Especificidade</h3>
+                  <p className="mb-3">A especificidade representa a proporção de casos negativos (maus pagadores) classificados corretamente pelo algoritmo em relação ao número total de casos negativos genuínos:</p>
+                    <MathBlock tex={"\\mathrm{Especificidade} = \\frac{TN}{TN + FP}"} />
+
+                  <h3 className="text-lg font-semibold mt-2">Precisão</h3>
+                  <p className="mb-3">A precisão indica a fração de casos classificados como positivos (bons pagadores) que são efetivamente positivos, ou seja, a confiabilidade das classificações positivas do modelo:</p>
+                    <MathBlock tex={"\\mathrm{Precisão} = \\frac{TP}{TP + FP}"} />
+
+                  
+                </div>
+              </div>
             </div>
           </div>
         </div>

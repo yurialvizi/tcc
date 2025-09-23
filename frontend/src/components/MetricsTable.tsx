@@ -58,6 +58,10 @@ export default function ClassificationMetricsTable({ metrics }: ClassificationMe
         </TableHeader>
         <TableBody>
           <TableRow>
+            <TableCell className="text-left font-medium">Accuracy</TableCell>
+            <TableCell className="text-right">{(metrics.accuracy ?? 0).toFixed(4)}</TableCell>
+          </TableRow>
+          <TableRow>
             <TableCell className="text-left font-medium">Precision</TableCell>
             <TableCell className="text-right">{(displayMetric.precision).toFixed(4)}</TableCell>
           </TableRow>
