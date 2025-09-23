@@ -1,20 +1,11 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import {
-  BookOpen,
-  Bot,
-  Library,
-  Cpu,
-  FolderGit2,
-} from "lucide-react"
+import * as React from "react";
+import { BookOpen, Bot, Library, Cpu, FolderGit2 } from "lucide-react";
 
-import { NavMain } from "@/components/nav-main"
+import { NavMain } from "@/components/nav-main";
 
-import {
-  Sidebar,
-  SidebarContent,
-} from "@/components/ui/sidebar"
+import { Sidebar, SidebarContent } from "@/components/ui/sidebar";
 
 const data = {
   navMain: [
@@ -26,11 +17,11 @@ const data = {
       items: [
         {
           title: "Sobre o projeto",
-          url: "/intro/introducao",
+          url: "/intro/introduction",
         },
         {
           title: "Métricas",
-          url: "/intro/metricas",
+          url: "/intro/metrics",
         },
       ],
     },
@@ -42,7 +33,7 @@ const data = {
       items: [
         {
           title: "Sobre o dataset",
-          url: "/datasample/analisys",
+          url: "/datasample/about",
         },
         {
           title: "Análise Exploratória",
@@ -57,6 +48,10 @@ const data = {
       isActive: true,
       items: [
         {
+          title: "Regressão Logística",
+          url: "/models/Regression",
+        },
+        {
           title: "Random Forest",
           url: "/models/RandomForest",
         },
@@ -65,31 +60,36 @@ const data = {
           url: "/models/XGBoost",
         },
         {
-          title: "Regressão Logística",
-          url: "/models/Regression",
-        },
-        {
           title: "MLP",
           url: "/models/MLP",
         },
+
+      ],
+    },
+    {
+      title: "ATAM",
+      url: "#",
+      icon: Cpu,
+      isActive: true,
+      items: [
         {
-          title: "Benchmark",
-          url: "/models/MLP",
+          title: "ATAM",
+          url: "/atam",
         },
       ],
     },
+    {
+      title: "Simulador",
+      url: "#",
+      icon: Cpu,
+      isActive: true,
+      items: [
         {
           title: "Simulador",
-          url: "#",
-          icon: Cpu,
-          isActive: true,
-          items: [
-            {
-              title: "Simulador",
-              url: "/simulator",
-            },
-          ],
+          url: "/simulator",
         },
+      ],
+    },
   ],
   projects: [
     {
@@ -103,7 +103,7 @@ const data = {
       icon: BookOpen,
     },
   ],
-}
+};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -112,5 +112,5 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={data.navMain} />
       </SidebarContent>
     </Sidebar>
-  )
+  );
 }

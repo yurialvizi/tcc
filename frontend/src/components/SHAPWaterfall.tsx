@@ -13,9 +13,9 @@ interface SHAPWaterfallProps {
 }
 
 const modelNames = {
+  'logistic-regression': 'Regressão Logística',
   'random-forest': 'Random Forest',
   'xg-boost': 'XGBoost',
-  'logistic-regression': 'Regressão Logística',
   'mlp': 'MLP (Rede Neural)'
 };
 
@@ -120,7 +120,10 @@ export function SHAPWaterfall({ inputData, predictions }: SHAPWaterfallProps) {
             </div>
 
             <div className="grid gap-4">
-              {Object.entries(waterfallData.waterfall_plots).map(([modelKey, waterfallPlot]) => {
+              {['logistic-regression', 'random-forest', 'xg-boost', 'mlp']
+                .filter(modelKey => waterfallData.waterfall_plots[modelKey])
+                .map((modelKey) => {
+                  const waterfallPlot = waterfallData.waterfall_plots[modelKey];
                 const modelName = modelNames[modelKey as keyof typeof modelNames] || modelKey;
                 const prediction = predictions[modelKey];
                 const isExpanded = expandedModels.has(modelKey);
@@ -169,8 +172,8 @@ export function SHAPWaterfall({ inputData, predictions }: SHAPWaterfallProps) {
                             <div className="text-xs text-muted-foreground space-y-1">
                               <p><strong>Interpretação:</strong></p>
                               <ul className="list-disc list-inside space-y-1 ml-2">
-                                <li>Barras vermelhas: fatores que aumentam o risco de inadimplência</li>
-                                <li>Barras azuis: fatores que diminuem o risco de inadimplência</li>
+                                <li>Barras vermelhas: fatores que diminuem o risco de inadimplência</li>
+                                <li>Barras azuis: fatores que aumentam o risco de inadimplência</li>
                                 <li>O tamanho da barra indica a magnitude do impacto</li>
                                 <li>A linha mostra como cada fator contribui para a decisão final</li>
                               </ul>

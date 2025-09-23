@@ -41,9 +41,9 @@ export function PredictionResults({ results }: PredictionResultsProps) {
   }
 
   const modelNames = {
+    'logistic-regression': 'Regressão Logística',
     'random-forest': 'Random Forest',
     'xg-boost': 'XGBoost',
-    'logistic-regression': 'Regressão Logística',
     'mlp': 'MLP (Rede Neural)'
   };
 
@@ -69,8 +69,10 @@ export function PredictionResults({ results }: PredictionResultsProps) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {Object.entries(results).map(([modelKey, prediction]) => {
-          if (modelKey === 'error' || !prediction) return null;
+        {['logistic-regression', 'random-forest', 'xg-boost', 'mlp']
+          .filter(modelKey => results[modelKey] && modelKey !== 'error')
+          .map((modelKey) => {
+            const prediction = results[modelKey] as string;
           
           const modelName = modelNames[modelKey as keyof typeof modelNames] || modelKey;
           const Icon = getPredictionIcon(prediction);
@@ -107,7 +109,6 @@ export function PredictionResults({ results }: PredictionResultsProps) {
         })}
       </div>
 
-      {/* Summary */}
       <Card className="mt-6">
         <CardHeader>
           <CardTitle className="text-base">Resumo das Predições</CardTitle>

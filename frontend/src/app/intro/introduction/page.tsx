@@ -1,4 +1,10 @@
 import { AppSidebar } from "@/components/app-sidebar";
+import { Button } from "@/components/ui/button";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -6,6 +12,16 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext,
+} from "@/components/ui/carousel";
 
 export default function Page() {
   return (
@@ -28,16 +44,16 @@ export default function Page() {
               </p>
 
               <p className="mb-2">
-                &nbsp;&nbsp;Neste contexto, a capacidade de tomar decisões de crédito mais precisas e fundamentadas torna-se um fator crítico para a redução de perdas financeiras e o fortalecimento da estabilidade e competitividade das instituições bancárias. A aplicação de técnicas avançadas de machine learning e redes neurais emerge como uma abordagem promissora para aprimorar os processos de análise de risco e concessão de crédito.
+                &nbsp;&nbsp;Neste contexto desafiador, a capacidade de tomar decisões de crédito mais precisas e fundamentadas torna-se um fator crítico para a redução de perdas financeiras e o fortalecimento da estabilidade e competitividade das instituições bancárias. A aplicação de técnicas avançadas de machine learning e redes neurais emerge como uma abordagem promissora para aprimorar os processos de análise de risco e concessão de crédito.
               </p>
 
               <h2 className="text-2xl font-bold mb-3 mt-3">Objetivo e Escopo</h2>
               <p className="mb-2">
-                O presente trabalho tem como objetivo principal realizar uma análise comparativa abrangente entre os principais algoritmos de machine learning e redes neurais aplicados ao processo de concessão de crédito para pessoas físicas. Esta investigação visa identificar os modelos mais eficazes na previsão de risco de crédito, considerando não apenas aspectos de desempenho técnico, mas também critérios operacionais relevantes para a aplicação prática no setor bancário.
+                &nbsp;&nbsp;O presente trabalho tem como objetivo principal realizar uma análise comparativa abrangente entre os principais algoritmos de machine learning e redes neurais aplicados ao processo de concessão de crédito para pessoas físicas. Esta investigação visa identificar os modelos mais eficazes na previsão de risco de crédito, considerando não apenas aspectos de desempenho técnico, mas também critérios operacionais relevantes para a aplicação prática no setor bancário.
               </p>
 
               <p className="mb-2">
-                Para alcançar este objetivo, o projeto contempla as seguintes etapas metodológicas:
+                &nbsp;&nbsp;Para alcançar este objetivo, o projeto contempla as seguintes etapas metodológicas:
               </p>
               <ul className="list-disc list-inside mb-2 ml-4 mt-2">
                 <li><strong>Preparação e Análise dos Dados:</strong> Utilização de um conjunto de dados específico para análise de crédito, que será submetido a rigorosas etapas de tratamento e análise exploratória, assegurando a consistência, qualidade e adequação das informações para o treinamento dos modelos.</li>

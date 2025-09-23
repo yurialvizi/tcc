@@ -32,7 +32,7 @@ export default function SimulatorPage() {
         </header>
         
         <div className="flex flex-1 flex-col gap-8 p-4 pt-0 overflow-y-auto">
-          {/* Form Section - Top */}
+
           <div className="space-y-4">
             <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
               <div className="p-6">
@@ -48,7 +48,7 @@ export default function SimulatorPage() {
             </div>
           </div>
           
-          {/* Results Section - Middle */}
+
           {results && (
             <div className="space-y-4">
               <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
@@ -63,7 +63,7 @@ export default function SimulatorPage() {
             </div>
           )}
           
-          {/* SHAP Explanations Section - Bottom */}
+
           {results && !results.error && inputData && (
             <div className="space-y-4">
               <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
