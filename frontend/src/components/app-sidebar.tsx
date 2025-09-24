@@ -1,11 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { BookOpen, Bot, Library, Cpu, FolderGit2 } from "lucide-react";
+import { BookOpen, Bot, Library, Cpu, FolderGit2, Github, Bookmark, Waypoints, TextSearch } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
 
 import { Sidebar, SidebarContent } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
 
 const data = {
   navMain: [
@@ -28,7 +29,7 @@ const data = {
     {
       title: "Dataset",
       url: "#",
-      icon: Library,
+      icon: TextSearch,
       isActive: true,
       items: [
         {
@@ -69,7 +70,7 @@ const data = {
     {
       title: "ATAM",
       url: "#",
-      icon: Cpu,
+      icon: Waypoints,
       isActive: true,
       items: [
         {
@@ -108,8 +109,25 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarContent>
+      <SidebarContent className="flex flex-col">
         <NavMain items={data.navMain} />
+
+        <div className="mt-auto p-3 w-full flex justify-center">
+          <div className="flex gap-2">
+            <Button asChild variant="ghost" className="h-10 px-3 gap-1">
+              <a href="/export" aria-label="Exportar">
+                <Github className="w-4 h-4" />
+                <span className="text-sm">Github</span>
+              </a>
+            </Button>
+            <Button asChild variant="ghost" className="h-10 px-3 gap-1">
+              <a href="/settings" aria-label="Configurações">
+                <Bookmark className="w-4 h-4" />
+                <span className="text-sm">Monografia</span>
+              </a>
+            </Button>
+          </div>
+        </div>
       </SidebarContent>
     </Sidebar>
   );

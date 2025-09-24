@@ -195,7 +195,7 @@ export default function Page() {
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0 h-[calc(100vh-4rem)]">
           <div className="grid gap-4 md:grid-cols-3 h-full">
-            <div className="bg-muted/50 rounded-xl p-6 flex flex-col justify-start md:col-span-2">
+            <div className="bg-muted/30 rounded-xl p-6 flex flex-col justify-start md:col-span-2">
               <h1 className="text-3xl font-bold mb-2">Logistic Regression</h1>
               <div className="text-sm ">
                 <p className="mb-1 ">
@@ -227,7 +227,7 @@ export default function Page() {
             </div>
 
             <div className="flex flex-col gap-4 h-full">
-              <div className="bg-muted/50 rounded-xl p-4 flex flex-col items-start flex-1 center">
+              <div className="bg-muted/30 rounded-xl p-4 flex flex-col items-start flex-1 center">
                 <h1 className="text-3xl font-bold mb-1 ml-2">Métricas</h1>
                 {loading ? (
                   <div className="p-4">Carregando métricas...</div>
@@ -245,7 +245,7 @@ export default function Page() {
                 )}
               </div>
 
-              <div className="bg-muted/50 rounded-xl p-4 flex flex-col items-start flex-1">
+              <div className="bg-muted/30 rounded-xl p-4 flex flex-col items-start flex-1">
                 <h1 className="text-3xl font-bold ml-2">Matriz de Confusão</h1>
                 <ConfusionMatrix
                   labels={["Good", "Bad"]}
@@ -254,7 +254,7 @@ export default function Page() {
               </div>
             </div>
           </div>
-          <div className="bg-muted/50 rounded-xl p-6 flex flex-col justify-start">
+          <div className="bg-muted/30 rounded-xl p-6 flex flex-col justify-start">
             <div className="flex items-center justify-between mb-4">
               <h1 className="text-3xl font-bold mb-2">Feature Importance</h1>
             </div>
@@ -284,7 +284,7 @@ export default function Page() {
                   </p>
                 </div>
 
-                <div className="order-2 md:order-2 rounded-lg p-2 bg-muted/20 flex items-center justify-center overflow-visible min-h-[360px] relative">
+                <div className="order-2 md:order-2 rounded-lg p-2 bg-muted/30 flex items-center justify-center overflow-visible min-h-[360px] relative">
                   {shapProcessing && (
                     <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/20">
                       <div className="text-white">Processando imagem...</div>

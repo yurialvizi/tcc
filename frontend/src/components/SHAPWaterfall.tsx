@@ -131,7 +131,7 @@ export function SHAPWaterfall({ inputData, predictions }: SHAPWaterfallProps) {
                 return (
                   <Card key={modelKey} className="overflow-hidden">
                     <CardHeader 
-                      className="cursor-pointer hover:bg-muted/50 transition-colors"
+                      className="cursor-pointer hover:bg-muted/30 transition-colors"
                       onClick={() => toggleModelExpansion(modelKey)}
                     >
                       <div className="flex items-center justify-between">

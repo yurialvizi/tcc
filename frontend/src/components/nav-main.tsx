@@ -35,7 +35,9 @@ export function NavMain({
 }) {
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Projeto</SidebarGroupLabel>
+      <SidebarGroupLabel>
+        <a href="/" className="hover:underline">Projeto</a>
+      </SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (
           <Collapsible key={item.title} asChild defaultOpen={item.isActive}>

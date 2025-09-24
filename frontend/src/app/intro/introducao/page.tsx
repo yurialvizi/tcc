@@ -21,7 +21,7 @@ export default function Page() {
         </header>
         <div>
           <div className="flex flex-1 flex-col gap-4 p-4 pt-0 h-[calc(100vh-4rem)]">
-            <div className="bg-muted/50 rounded-xl p-6 flex flex-col justify-start md:col-span-2">
+            <div className="bg-muted/30 rounded-xl p-6 flex flex-col justify-start md:col-span-2">
               <h1 className="text-2xl font-bold mb-3">Contextualização e Relevância</h1>
               <p className="mb-2 indent-paragraph">
                 &nbsp;&nbsp;A concessão de crédito representa uma das principais fontes de receita para o setor bancário brasileiro, sendo operacionalizada principalmente através de empréstimos, financiamentos e cartões de crédito. No entanto, este segmento apresenta os maiores índices de inadimplência do sistema financeiro nacional, elevando significativamente o risco de crédito, que constitui o principal componente dos ativos ponderados pelo risco no país.

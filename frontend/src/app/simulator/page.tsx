@@ -34,7 +34,7 @@ export default function SimulatorPage() {
         <div className="flex flex-1 flex-col gap-8 p-4 pt-0 overflow-y-auto">
 
           <div className="space-y-4">
-            <div className="rounded-lg bg-muted/50 ">
+            <div className="rounded-lg bg-muted/30 ">
               <div className="p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="w-8 h-8 rounded-full bg-[#4538FF] text-primary-foreground flex items-center justify-center text-sm font-semibold">1</div>
@@ -51,7 +51,7 @@ export default function SimulatorPage() {
 
           {results && (
             <div className="space-y-4">
-              <div className="rounded-lg bg-muted/50">
+              <div className="rounded-lg bg-muted/30">
                 <div className="p-6">
                   <div className="flex items-center gap-2 mb-4">
                     <div className="w-8 h-8 rounded-full bg-[#4538FF] text-primary-foreground flex items-center justify-center text-sm font-semibold">2</div>
@@ -66,7 +66,7 @@ export default function SimulatorPage() {
 
           {results && !results.error && inputData && (
             <div className="space-y-4">
-              <div className="rounded-lg bg-muted/50 ">
+              <div className="rounded-lg bg-muted/30 ">
                 <div className="p-6">
                   <div className="flex items-center gap-2 mb-4">
                     <div className="w-8 h-8 rounded-full bg-[#4538FF] text-primary-foreground flex items-center justify-center text-sm font-semibold">3</div>

@@ -37,7 +37,7 @@ export default function Page() {
         </header>
         <div>
           <div className="flex flex-1 flex-col gap-4 p-4 pt-0 h-[calc(100vh-4rem)]">
-            <div className="bg-muted/50 rounded-xl p-6 flex flex-col justify-start md:col-span-2 overflow-auto">
+            <div className="bg-muted/30 rounded-xl p-6 flex flex-col justify-start md:col-span-2 overflow-auto">
               <h1 className="text-2xl font-semibold mb-4">Análise exploratória</h1>
 
               <p className="text-sm text-muted-foreground mb-6">
@@ -46,50 +46,50 @@ export default function Page() {
                 explicação do seu propósito e interpretação principal.
               </p>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-muted/50">
-                <Card className="bg-muted/50">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-muted/30">
+                <Card className="bg-muted/30">
                   <CardContent>
                     <img src="/exploratory/age_distribution.png" alt="Age distribution" className="w-full rounded-md" />
                   </CardContent>
                 </Card>
 
-                <Card className="bg-muted/50">
+                <Card className="bg-muted/30">
                   <CardContent>
                     <img src="/exploratory/sex_vs_risk.png" alt="Sex x Risk" className="w-full rounded-md" />
                   </CardContent>
                 </Card>
 
-                <Card className="bg-muted/50">
+                <Card className="bg-muted/30">
                   <CardContent>
                     <img src="/exploratory/credit_amount_vs_risk.png" alt="Credit amount vs Risk" className="w-full rounded-md" />
                   </CardContent>
                 </Card>
 
-                <Card className="bg-muted/50">
+                <Card className="bg-muted/30">
                   <CardContent>
                     <img src="/exploratory/jobs_vs_risk.png" alt="Jobs x Risk" className="w-full rounded-md" />
                   </CardContent>
                 </Card>
 
-                <Card className="bg-muted/50">
+                <Card className="bg-muted/30">
                   <CardContent>
                     <img src="/exploratory/employee_since_vs_risk.png" alt="Employee since vs Risk" className="w-full rounded-md" />
                   </CardContent>
                 </Card>
 
-                <Card className="bg-muted/50">
+                <Card className="bg-muted/30">
                   <CardContent>
                     <img src="/exploratory/savings_vs_risk.png" alt="Savings x Risk" className="w-full rounded-md" />
                   </CardContent>
                 </Card>
 
-                <Card className="bg-muted/50">
+                <Card className="bg-muted/30">
                   <CardContent>
                     <img src="/exploratory/checking_account_vs_risk.png" alt="Checking account x Risk" className="w-full rounded-md" />
                   </CardContent>
                 </Card>
 
-                <Card className="bg-muted/50">
+                <Card className="bg-muted/30">
                   <CardContent>
                     <img src="/exploratory/correlation_matrix.png" alt="Correlation matrix" className="w-full rounded-md" />
                   </CardContent>

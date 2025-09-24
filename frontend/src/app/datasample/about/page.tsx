@@ -195,7 +195,7 @@ export default function Page() {
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0 h-[calc(100vh-4rem)]">
           <div className="grid gap-4 md:grid-cols-5 h-full">
-            <div className="bg-muted/50 rounded-xl p-6 flex flex-col justify-start md:col-span-3">
+            <div className="bg-muted/30 rounded-xl p-6 flex flex-col justify-start md:col-span-3">
               <p className="mb-2 indent-paragraph">
                 &nbsp;&nbsp;O dataset base do trabalho é o Statlog (German Credit Data),
                 desenvolvido por Hans Hofmann (1994), amplamente utilizado em
@@ -221,9 +221,51 @@ export default function Page() {
             </div>
 
             <div className="flex flex-col gap-4 h-full flex flex-col gap-4 h-full md:col-span-2">
-              <div className="bg-muted/50 rounded-xl p-4 flex flex-col items-start flex-1">
-                <h1 className="text-3xl font-bold mb-1 ml-2">Atributos</h1>
+              <div className="bg-muted/30 rounded-xl p-4 flex flex-col items-start flex-1">
                 
+                <div className="w-full overflow-hidden border-[0.5px] border-input">
+                    <table className="table-auto w-full text-sm text-muted-foreground border-collapse">
+                      <thead>
+                        <tr>
+                          <th className="text-left px-2 py-1 border-[0.3px] border-input text-black">Atributo</th>
+                          <th className="text-left px-2 py-1 border-[0.3px] border-input text-black">Descrição</th>
+                        </tr>
+                      </thead>
+                      <tbody className="text-gray-750">
+                        {[
+                          ['duration', 'Duração do crédito em meses'],
+                          ['credit_amount', 'Valor do crédito solicitado'],
+                          ['installment_rate', 'Taxa da prestação'],
+                          ['present_residence', 'Tempo na residência atual'],
+                          ['age', 'Idade do cliente'],
+                          ['number_credits', 'Número de créditos existentes'],
+                          ['people_liable', 'Número de dependentes'],
+                          ['checking_status', 'Status da conta corrente'],
+                          ['savings_status', 'Status da conta poupança'],
+                          ['employment', 'Tempo de emprego'],
+                          ['personal_status', 'Estado civil / sexo'],
+                          ['other_debtors', 'Outros devedores / garantias'],
+                          ['property', 'Tipo de propriedade'],
+                          ['other_installment_plans', 'Outros planos de prestação'],
+                          ['housing', 'Tipo de moradia'],
+                          ['job', 'Categoria de emprego'],
+                          ['telephone', 'Possui telefone?'],
+                          ['foreign_worker', 'Trabalhador estrangeiro?'],
+                          ['purpose', 'Finalidade do crédito'],
+                          ['real_income', 'Renda real (ou transformada)'],
+                          ['credit_history', 'Histórico de crédito / pontuação']
+                        ].map(([attr, desc], idx, arr) => {
+                          const last = idx === arr.length - 1;
+                          return (
+                            <tr key={attr + idx} className={idx % 2 === 0 ? 'bg-transparent' : 'bg-muted/10'}>
+                              <td className={"px-2 py-1 align-top font-medium border-[0.3px] border-input"}>{attr}</td>
+                              <td className={"px-2 py-1 align-top border-[0.5px] border-input"}>{desc}</td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                </div>
               </div>
 
 
