@@ -1,11 +1,22 @@
 import shap
 import base64
 import io
+import matplotlib
+matplotlib.use('Agg')  # Use non-interactive backend
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import random
+import threading
+import logging
 from .helper import TRAINED_FEATURES
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Thread lock for matplotlib operations
+matplotlib_lock = threading.Lock()
 
 def set_deterministic_seeds():
     """Set random seeds for deterministic behavior"""
@@ -123,45 +134,36 @@ def generate_waterfall_plot(trained_model, sample, model_name, masker=None, scal
         masker: Optional masker for SHAP explainer
         scaler: Optional scaler for models that need scaling
     """
-    print(f"Generating waterfall plot for {model_name}")
-    print(f"Sample shape: {sample.shape if hasattr(sample, 'shape') else len(sample)}")
-    print(f"Sample values: {sample[:5]}...")
+    logger.info(f"Generating waterfall plot for {model_name}")
     
-    # Call the appropriate model-specific function
-    if model_name == 'logistic-regression':
-        shap_values, sample_shap_value = generate_logistic_regression_waterfall(trained_model, sample, scaler, masker)
-    elif model_name == 'mlp':
-        shap_values, sample_shap_value = generate_mlp_waterfall(trained_model, sample, masker)
-    elif model_name == 'random-forest':
-        shap_values, sample_shap_value = generate_random_forest_waterfall(trained_model, sample)
-    elif model_name == 'xg-boost':
-        shap_values, sample_shap_value = generate_xgboost_waterfall(trained_model, sample)
-    else:
-        raise ValueError(f"Unknown model name: {model_name}")
-    
-    print(f"SHAP values shape: {shap_values.shape}")
-    print(f"Sample SHAP value shape: {sample_shap_value.shape}")
-    
-    # Safely print first 5 values
     try:
-        if hasattr(sample_shap_value, 'values'):
-            print(f"Sample SHAP value (first 5): {sample_shap_value.values[:5]}")
-        else:
-            print(f"Sample SHAP value (first 5): {sample_shap_value[:5]}")
+        # Use thread lock for matplotlib operations to prevent segfaults
+        with matplotlib_lock:
+            # Call the appropriate model-specific function
+            if model_name == 'logistic-regression':
+                shap_values, sample_shap_value = generate_logistic_regression_waterfall(trained_model, sample, scaler, masker)
+            elif model_name == 'mlp':
+                shap_values, sample_shap_value = generate_mlp_waterfall(trained_model, sample, masker)
+            elif model_name == 'random-forest':
+                shap_values, sample_shap_value = generate_random_forest_waterfall(trained_model, sample)
+            elif model_name == 'xg-boost':
+                shap_values, sample_shap_value = generate_xgboost_waterfall(trained_model, sample)
+            else:
+                raise ValueError(f"Unknown model name: {model_name}")
+
+            # Convert plot to base64
+            fig = plt.gcf()
+            img_bytes = io.BytesIO()
+            fig.savefig(img_bytes, format='png', bbox_inches='tight', dpi=100)
+            img_bytes.seek(0)
+            img_b64 = base64.b64encode(img_bytes.read()).decode('utf-8')
+            plt.close(fig)
+            
+            logger.info(f"Waterfall plot generated successfully!")
+
+            return img_b64
+            
     except Exception as e:
-        print(f"Could not print sample SHAP values: {e}")
-
-    # Convert plot to base64
-    fig = plt.gcf()
-    img_bytes = io.BytesIO()
-    fig.savefig(img_bytes, format='png', bbox_inches='tight')
-    img_bytes.seek(0)
-    img_b64 = base64.b64encode(img_bytes.read()).decode('utf-8')
-    plt.close(fig)
-
-    
-    print(f"Waterfall plot generated successfully!")
-    print(f"Result length: {len(img_b64)}")
-    print(f"Result hash: {hash(img_b64)}")
-
-    return img_b64
+        logger.error(f"Error generating waterfall plot for {model_name}: {e}")
+        # Return a placeholder image or raise the error
+        raise RuntimeError(f"Failed to generate waterfall plot: {str(e)}")
