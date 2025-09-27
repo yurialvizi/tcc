@@ -6,13 +6,37 @@ from utils.model_loader import load_models
 from utils.predictor import predict_with_models
 from utils.helper import preprocessing
 from utils.shap import generate_waterfall_plot
+from utils.model_downloader import download_models_from_gdrive, check_models_available
 import pandas as pd
 import numpy as np
 import matplotlib
+import logging
+
 matplotlib.use('Agg')
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 CORS(app)
+
+# Check and download models and data if needed
+logger.info("🔍 Checking for saved models and data...")
+files_available, missing_files = check_models_available()
+
+if not files_available:
+    logger.info(f"📥 Missing files: {missing_files}")
+    logger.info("🚀 Downloading models and data folder from Google Drive...")
+    download_success = download_models_from_gdrive()
+    
+    if not download_success:
+        logger.error("❌ Failed to download files from Google Drive")
+        logger.error("Please check your Google Drive folder ID in utils/model_downloader.py")
+    else:
+        logger.info("✅ Files download completed!")
+else:
+    logger.info("✅ All models and data are available locally!")
 
 model_paths = {
     "logistic-regression": "saved_models/logistic_regression.pkl",
@@ -21,7 +45,9 @@ model_paths = {
     "mlp": "saved_models/mlp.pkl",
 }
 
+logger.info("🔄 Loading models into memory...")
 trained_models, model_metrics, shap, scalers = load_models(model_paths)
+logger.info("✅ Models loaded successfully!")
 
 @app.route('/')
 def home():
@@ -144,7 +170,17 @@ def bin_numeric_column(series, bins=10):
 @app.route('/analyze', methods=['GET'])
 def analyze():
     try:
-        df = pd.read_csv('data/syntetic_sample.csv')
+        # Try to read from local data directory first, then from models directory
+        path = 'data/syntetic_sample.csv'
+        df = None
+        try:
+            df = pd.read_csv(path)
+            logger.info(f"📊 Loaded data from {path}")
+        except FileNotFoundError:
+            return jsonify({"error": "Data file not found. Please ensure syntetic_sample.csv is available in the data folder."}), 404
+        
+        if df is None:
+            return jsonify({"error": "Data file not found. Please ensure syntetic_sample.csv is available in the data folder."}), 404
 
         top_n = request.args.get("top_n", default=None, type=int)
         include_bins = request.args.get("include_bins", default=False, type=lambda x: x.lower() == 'true')

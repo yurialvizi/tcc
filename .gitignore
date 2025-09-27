@@ -4,6 +4,7 @@ __pycache__/
 
 # Backend
 backend/saved_models/*
+backend/data/*
 
 # Models
 models/lib/visualization.py
