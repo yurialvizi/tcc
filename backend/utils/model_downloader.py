@@ -23,8 +23,6 @@ def download_models_from_gdrive():
         logger.error("gdown not installed. Please add gdown to requirements.txt")
         return False
     
-    # Google Drive folder ID containing all models and data
-    # TODO: Replace this with your actual Google Drive folder ID
     FOLDER_ID = '1JsWol8h8m6f_mjFfOcJkz784FGC178vb'
     
     if FOLDER_ID.startswith('YOUR_'):
@@ -47,9 +45,9 @@ def download_models_from_gdrive():
     ]
     
     # Check if synthetic sample data exists
-    data_dir = current_dir.parent / 'data'
-    data_dir.mkdir(exist_ok=True)
-    synthetic_sample_path = data_dir / 'syntetic_sample.csv'
+    # data_dir = current_dir.parent / 'data'
+    # data_dir.mkdir(exist_ok=True)
+    # synthetic_sample_path = data_dir / 'syntetic_sample.csv'
     
     missing_models = []
     for model in required_models:
@@ -58,15 +56,15 @@ def download_models_from_gdrive():
             missing_models.append(model)
     
     missing_data = []
-    if not synthetic_sample_path.exists() or synthetic_sample_path.stat().st_size < 1024:  # Less than 1KB
-        missing_data.append('syntetic_sample.csv')
+    # if not synthetic_sample_path.exists() or synthetic_sample_path.stat().st_size < 1024:  # Less than 1KB
+    #     missing_data.append('syntetic_sample.csv')
     
     if not missing_models and not missing_data:
         logger.info("✅ All models and data already present locally!")
         return True
     
     logger.info(f"📥 Missing models: {missing_models}")
-    logger.info(f"📥 Missing data: {missing_data}")
+    # logger.info(f"📥 Missing data: {missing_data}")
     logger.info("🚀 Downloading models and data folder from Google Drive...")
     
     try:
@@ -83,12 +81,12 @@ def download_models_from_gdrive():
         
         # Move downloaded files to appropriate directories
         downloaded_pkl_files = list(temp_dir.rglob('*.pkl'))
-        downloaded_csv_files = list(temp_dir.rglob('*.csv'))
+        # downloaded_csv_files = list(temp_dir.rglob('*.csv'))
         
-        logger.info(f"📦 Found {len(downloaded_pkl_files)} .pkl files and {len(downloaded_csv_files)} .csv files in downloaded folder")
+        logger.info(f"📦 Found {len(downloaded_pkl_files)} .pkl files in downloaded folder")
         
         moved_models = 0
-        moved_data = 0
+        # moved_data = 0
         
         # Move model files
         for pkl_file in downloaded_pkl_files:
@@ -104,22 +102,22 @@ def download_models_from_gdrive():
                 logger.info(f"ℹ️  Skipping {filename} (not in required models)")
         
         # Move data files
-        for csv_file in downloaded_csv_files:
-            filename = csv_file.name
-            if filename == 'syntetic_sample.csv':
-                destination = data_dir / filename
-                shutil.move(str(csv_file), str(destination))
-                logger.info(f"✅ Moved data {filename} ({destination.stat().st_size / (1024*1024):.1f}MB)")
-                moved_data += 1
-            else:
-                logger.info(f"ℹ️  Skipping {filename} (not required data file)")
+        # for csv_file in downloaded_csv_files:
+        #     filename = csv_file.name
+        #     if filename == 'syntetic_sample.csv':
+        #         destination = data_dir / filename
+        #         shutil.move(str(csv_file), str(destination))
+        #         logger.info(f"✅ Moved data {filename} ({destination.stat().st_size / (1024*1024):.1f}MB)")
+        #         moved_data += 1
+        #     else:
+        #         logger.info(f"ℹ️  Skipping {filename} (not required data file)")
         
         # Clean up temporary directory
         shutil.rmtree(temp_dir, ignore_errors=True)
         
-        total_moved = moved_models + moved_data
+        total_moved = moved_models
         if total_moved > 0:
-            logger.info(f"🎉 Successfully downloaded {moved_models} models and {moved_data} data files!")
+            logger.info(f"🎉 Successfully downloaded {moved_models} models!")
         else:
             logger.warning("⚠️  No files were downloaded. Check your folder ID and folder structure.")
             
@@ -139,7 +137,7 @@ def check_models_available():
     """
     current_dir = Path(__file__).parent
     saved_models_dir = current_dir.parent / 'saved_models'  # Go up one level to backend/saved_models
-    data_dir = current_dir.parent / 'data'
+    # data_dir = current_dir.parent / 'data'
     
     required_models = [
         'logistic_regression.pkl',
@@ -155,9 +153,9 @@ def check_models_available():
             missing_models.append(model)
     
     missing_data = []
-    synthetic_sample_path = data_dir / 'syntetic_sample.csv'
-    if not synthetic_sample_path.exists() or synthetic_sample_path.stat().st_size < 1024:  # Less than 1KB
-        missing_data.append('syntetic_sample.csv')
+    # synthetic_sample_path = data_dir / 'syntetic_sample.csv'
+    # if not synthetic_sample_path.exists() or synthetic_sample_path.stat().st_size < 1024:  # Less than 1KB
+        # missing_data.append('syntetic_sample.csv')
     
     all_missing = missing_models + missing_data
     return len(all_missing) == 0, all_missing
