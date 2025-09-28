@@ -10,3 +10,4 @@ shap==0.48.0
 matplotlib==3.10.1
 gdown==5.2.0
 gunicorn==21.2.0
+psutil==6.1.0

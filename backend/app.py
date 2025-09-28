@@ -2,7 +2,7 @@ from datetime import datetime
 import os
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from utils.model_loader import load_models
+from utils.lazy_model_loader import LazyModelLoader
 from utils.predictor import predict_with_models
 from utils.helper import preprocessing
 from utils.shap import generate_waterfall_plot
@@ -45,9 +45,9 @@ model_paths = {
     "mlp": "saved_models/mlp.pkl",
 }
 
-logger.info("🔄 Loading models into memory...")
-trained_models, model_metrics, shap, scalers = load_models(model_paths)
-logger.info("✅ Models loaded successfully!")
+logger.info("🔄 Initializing lazy model loader...")
+model_loader = LazyModelLoader(model_paths)
+logger.info("✅ Lazy model loader initialized! Models will be loaded on-demand.")
 
 @app.route('/')
 def home():
@@ -60,7 +60,7 @@ def predict():
 
         preprocessed_data = preprocessing(data)
                 
-        predictions = predict_with_models(trained_models, preprocessed_data, scalers)
+        predictions = predict_with_models(model_loader, preprocessed_data)
         
         return jsonify(predictions)
     except Exception as e:
@@ -69,16 +69,17 @@ def predict():
 @app.route('/metrics', methods=['GET'])
 def metrics():
     try:
-        return jsonify(model_metrics)
+        return jsonify(model_loader.get_metrics())
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
 @app.route('/metrics/<model_name>', methods=['GET'])
 def metrics_of_model(model_name):
     try:
-        if model_name not in model_metrics:
+        metrics = model_loader.get_metrics(model_name)
+        if metrics is None:
             return jsonify({"error": "Model not found"}), 404
-        return jsonify(model_metrics[model_name])
+        return jsonify(metrics)
     except Exception as e:
         return jsonify({"error": str(e)}), 400
     
@@ -86,11 +87,12 @@ def metrics_of_model(model_name):
 @app.route('/shap/plots/<model_name>', methods=['GET'])
 def shap_plots(model_name):
     try:
-        if model_name not in shap:
+        shap_data = model_loader.get_shap(model_name)
+        if shap_data is None:
             return jsonify({"error": "Model not found"}), 404
         
-        summary_plot_b64 = shap[model_name].get('summary_plot')
-        shap_importance_b64 = shap[model_name].get('shap_importance')
+        summary_plot_b64 = shap_data.get('summary_plot')
+        shap_importance_b64 = shap_data.get('shap_importance')
 
         return jsonify({
             "summary_plot": summary_plot_b64,
@@ -102,7 +104,8 @@ def shap_plots(model_name):
 @app.route('/shap/waterfall/<model_name>', methods=['POST'])
 def shap_waterfall(model_name):
     try:
-        if model_name not in shap:
+        shap_data = model_loader.get_shap(model_name)
+        if shap_data is None:
             return jsonify({"error": "Model not found"}), 404
         
         data = request.get_json()
@@ -113,7 +116,20 @@ def shap_waterfall(model_name):
         validated_sample_df = preprocessing(data)
         validated_sample = validated_sample_df.values[0]  # Convert DataFrame to numpy array
         
-        waterfall_plot_b64 = generate_waterfall_plot(trained_models[model_name], validated_sample, model_name, shap[model_name].get('masker'), scalers.get(model_name))
+        # Get the model (will load it if needed)
+        trained_model = model_loader.get_model(model_name)
+        scaler = model_loader.get_scaler(model_name)
+        
+        waterfall_plot_b64 = generate_waterfall_plot(
+            trained_model, 
+            validated_sample, 
+            model_name, 
+            None,  # masker will be created in the SHAP function if needed
+            scaler
+        )
+        
+        # Unload the model to free memory
+        model_loader.unload_model(model_name)
         
         return jsonify({"waterfall_plot": waterfall_plot_b64})
     except Exception as e:
@@ -133,18 +149,27 @@ def shap_waterfall_all():
         
         waterfall_plots = {}
         
-        for model_name in trained_models.keys():
+        for model_name in model_loader.model_paths.keys():
             try:
+                # Get the model (will load it if needed)
+                trained_model = model_loader.get_model(model_name)
+                scaler = model_loader.get_scaler(model_name)
+                shap_data = model_loader.get_shap(model_name)
+                
                 waterfall_plot_b64 = generate_waterfall_plot(
-                    trained_models[model_name], 
+                    trained_model, 
                     validated_sample, 
                     model_name, 
-                    shap[model_name].get('masker'), 
-                    scalers.get(model_name)
+                    shap_data.get('masker'), 
+                    scaler
                 )
                 waterfall_plots[model_name] = waterfall_plot_b64
+                
+                # Unload the model to free memory
+                model_loader.unload_model(model_name)
+                
             except Exception as e:
-                print(f"Error generating SHAP waterfall for {model_name}: {e}")
+                print(f"Error generating SHAP waterfall plot for {model_name}: {e}")
                 waterfall_plots[model_name] = None
         
         return jsonify({"waterfall_plots": waterfall_plots})
@@ -212,6 +237,42 @@ def analyze():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@app.route('/memory', methods=['GET'])
+def memory_status():
+    """Get memory usage and loaded models status"""
+    try:
+        import psutil
+        import os
+        
+        # Get process memory usage
+        process = psutil.Process(os.getpid())
+        memory_info = process.memory_info()
+        memory_mb = memory_info.rss / 1024 / 1024
+        
+        # Get loaded models
+        loaded_models = model_loader.get_loaded_models()
+        
+        return jsonify({
+            "memory_usage_mb": round(memory_mb, 2),
+            "loaded_models": loaded_models,
+            "total_models": len(model_loader.model_paths),
+            "available_models": list(model_loader.model_paths.keys())
+        })
+    except ImportError:
+        return jsonify({"error": "psutil not available for memory monitoring"}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.route('/memory/unload', methods=['POST'])
+def unload_all_models():
+    """Unload all models to free memory"""
+    try:
+        model_loader.unload_all_models()
+        return jsonify({"message": "All models unloaded successfully"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 
 if __name__ == '__main__':
