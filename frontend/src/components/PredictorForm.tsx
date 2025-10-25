@@ -20,6 +20,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { FormData, Profile, predefinedProfiles } from "@/data/profiles";
+import API_CONFIG from "@/lib/api-config";
 
 
 const initialFormData: FormData = {
@@ -182,7 +183,7 @@ export function PredictorForm({
       // Pass input data to parent for SHAP visualization
       onInputDataChange(formData);
 
-      const response = await fetch("http://127.0.0.1:5001/predict", {
+      const response = await fetch(`${API_CONFIG.SHAP_BASE_URL}/predict`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

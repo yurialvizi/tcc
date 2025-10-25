@@ -1,6 +1,7 @@
 "use client";
 
 import React, { JSX, useEffect, useState } from "react";
+import API_CONFIG from "@/lib/api-config";
 
 interface ConfusionMatrixProps {
   labels?: string[];
@@ -72,7 +73,7 @@ export default function ConfusionMatrix({ labels: initialLabels = ["Good", "Bad"
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`http://127.0.0.1:5001/metrics/${modelName}`);
+        const res = await fetch(`${API_CONFIG.SHAP_BASE_URL}/metrics/${modelName}`);
         if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
         const data = await res.json();
 

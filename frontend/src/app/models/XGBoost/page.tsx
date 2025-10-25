@@ -12,6 +12,7 @@ import ConfusionMatrix from "@/components/ConfusionMatrix";
 import ClassificationMetricsTable from "@/components/MetricsTable";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, AlertCircle } from "lucide-react";
+import API_CONFIG from "@/lib/api-config";
 
 const fallbackMetrics = {};
 
@@ -29,7 +30,7 @@ export default function Page() {
     setShapLoading(true);
     setShapError(null);
     try {
-      const res = await fetch("http://127.0.0.1:5001/shap/plots/xg-boost");
+      const res = await fetch(`${API_CONFIG.SHAP_BASE_URL}/shap/plots/xg-boost`);
       if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
       const data = await res.json();
       setShapSummaryB64(data?.summary_plot ?? null);
@@ -45,7 +46,7 @@ export default function Page() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("http://127.0.0.1:5001/metrics/xg-boost");
+      const res = await fetch(`${API_CONFIG.SHAP_BASE_URL}/metrics/xg-boost`);
       if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
       const data = await res.json();
       if (data && data.classification_report) {

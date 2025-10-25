@@ -1,3 +1,5 @@
+import API_CONFIG from '@/lib/api-config';
+
 export interface AnalyzeData {
   categoricalDistributions: Record<string, Record<string, number>>;
   numericalDistributions: Record<string, Record<string, number>>;
@@ -6,7 +8,7 @@ export interface AnalyzeData {
 
 export async function fetchAnalysisData(): Promise<AnalyzeData> {
   try {
-    const res = await fetch("http://127.0.0.1:5000/analyze");
+    const res = await fetch(`${API_CONFIG.BASE_URL}/analyze`);
     if (!res.ok) {
       throw new Error(`HTTP error! Status: ${res.status}`);
     }
@@ -134,7 +136,7 @@ export async function fetchShapWaterfall(
   inputData: Record<string, string | number>
 ): Promise<ShapWaterfallResponse> {
   try {
-    const res = await fetch(`http://127.0.0.1:5001/shap/waterfall/${modelName}`, {
+    const res = await fetch(`${API_CONFIG.SHAP_BASE_URL}/shap/waterfall/${modelName}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -163,7 +165,7 @@ export async function fetchShapWaterfallAll(
   inputData: Record<string, string | number>
 ): Promise<ShapWaterfallAllResponse> {
   try {
-    const res = await fetch('http://127.0.0.1:5001/shap/waterfall', {
+    const res = await fetch(`${API_CONFIG.SHAP_BASE_URL}/shap/waterfall`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

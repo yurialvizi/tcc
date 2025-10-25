@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, AlertCircle } from "lucide-react";
+import API_CONFIG from "@/lib/api-config";
 
 interface SHAPSummaryProps {
   modelName?: string;
@@ -20,7 +21,7 @@ export default function SHAPSummary({ modelName = 'random-forest' }: SHAPSummary
       setIsLoading(true);
       setError(null);
       try {
-        const res = await fetch(`http://127.0.0.1:5001/shap/plots/${modelName}`);
+        const res = await fetch(`${API_CONFIG.SHAP_BASE_URL}/shap/plots/${modelName}`);
         if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
         const data = await res.json();
         if (mounted) {
