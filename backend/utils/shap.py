@@ -34,16 +34,27 @@ def generate_logistic_regression_waterfall(trained_model, sample, scaler, masker
     sample_df = pd.DataFrame([sample_flat], columns=scaler.feature_names_in_)
     sample_scaled = scaler.transform(sample_df)
     
-    # Create explainer and get SHAP values
-    explainer = shap.Explainer(trained_model, masker)
-    shap_values = explainer(sample_scaled)
-    sample_shap_value = shap_values[0]
+    # Create a wrapper function that handles scaling internally
+    def model_predict_proba_wrapper(data):
+        """Wrapper function that scales data before prediction"""
+        if isinstance(data, pd.DataFrame):
+            scaled_data = scaler.transform(data)
+        else:
+            # Convert to DataFrame if needed
+            data_df = pd.DataFrame(data, columns=scaler.feature_names_in_)
+            scaled_data = scaler.transform(data_df)
+        return trained_model.predict_proba(scaled_data)
+    
+    # Create explainer using the wrapper function with original data masker
+    explainer = shap.Explainer(model_predict_proba_wrapper, masker)
+    shap_values = explainer(sample_df)  # Use original unscaled data
+    sample_shap_value = shap_values[0, :, 1]  # Get SHAP values for class 1 (positive class)
     
     # Create waterfall plot with feature names
     sample_shap_value_with_names = shap.Explanation(
         values=sample_shap_value,
         feature_names=scaler.feature_names_in_,
-        data=sample_scaled
+        data=sample_flat  # Use original unscaled data for display
     )
     shap.plots.waterfall(sample_shap_value_with_names, max_display=10, show=False)
     
@@ -108,15 +119,42 @@ def generate_xgboost_waterfall(trained_model, sample):
     # Convert sample to 2D array
     sample_2d = np.array(sample).reshape(1, -1)
     
-    # Create explainer and get SHAP values
-    explainer = shap.Explainer(trained_model)
+    # Use TreeExplainer for XGBoost (most reliable for tree models)
+    explainer = shap.TreeExplainer(trained_model)
     shap_values = explainer(sample_2d)
-    sample_shap_value = shap_values[0]
+    
+    # Get the probability prediction to match SHAP values
+    proba = trained_model.predict_proba(sample_2d)
+    prob_class_1 = proba[0, 1]
+    
+    # For TreeExplainer, shap_values is typically for the positive class
+    # We need to convert logit-based SHAP values to probability-based
+    if len(shap_values.shape) == 2:
+        # Binary classification - shap_values is for positive class
+        sample_shap_value = shap_values.values[0] if hasattr(shap_values, 'values') else shap_values[0]
+        base_value_logit = explainer.expected_value
+    else:
+        # Multi-class case
+        sample_shap_value = shap_values.values[0, :, 1] if hasattr(shap_values, 'values') else shap_values[0, :, 1]
+        base_value_logit = explainer.expected_value[1]
+    
+    # Convert logit-based base value to probability
+    import math
+    base_value_prob = 1 / (1 + math.exp(-base_value_logit))
+    
+    # Scale SHAP values to match probability space
+    # The sum of SHAP values should equal the difference between prediction and base
+    current_sum = float(np.sum(sample_shap_value))
+    target_sum = prob_class_1 - base_value_prob
+    
+    if abs(current_sum) > 1e-10:  # Avoid division by zero
+        scale_factor = target_sum / current_sum
+        sample_shap_value = sample_shap_value * scale_factor
     
     # Create waterfall plot with feature names
     sample_shap_value_with_names = shap.Explanation(
-        values=shap_values.values[0],  # XGBoost has shape (1, n_features)
-        base_values=shap_values.base_values[0],  # XGBoost has shape (1,)
+        values=sample_shap_value,
+        base_values=base_value_prob,
         feature_names=TRAINED_FEATURES,
         data=np.array(sample).flatten()
     )
