@@ -9,7 +9,11 @@ import pandas as pd
 import random
 import threading
 import logging
+import warnings
 from .helper import TRAINED_FEATURES
+
+# Suppress sklearn warnings about feature names
+warnings.filterwarnings('ignore', category=UserWarning, module='sklearn')
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -67,23 +71,39 @@ def generate_mlp_waterfall(trained_model, sample, masker):
     # Convert sample to 2D array
     sample_2d = np.array(sample).reshape(1, -1)
     
-    # Create masker and explainer
+    # Create a wrapper function that handles the full pipeline
+    def mlp_pipeline_predict_proba(data):
+        """Wrapper function that uses the full pipeline"""
+        return trained_model.predict_proba(data)
+    
+    # Create masker and explainer using the wrapper function
     masker_array = np.array(masker)
     masker_df = shap.maskers.Independent(masker_array)
-    model = trained_model.named_steps['mlp']
-    explainer = shap.Explainer(model.predict_proba, masker_df)
+    explainer = shap.Explainer(mlp_pipeline_predict_proba, masker_df)
     
-    # Get SHAP values
+    # Get SHAP values using original unscaled data
     set_deterministic_seeds()
     shap_values = explainer(sample_2d)
-    sample_shap_value = shap_values[0,:,1]  # Class 1 SHAP values
+    
+    # Get the actual prediction to ensure consistency
+    proba = trained_model.predict_proba(sample_2d)
+    prob_class_1 = proba[0, 1]
+    
+    # Extract SHAP values for class 1
+    if len(shap_values.shape) == 3:
+        sample_shap_value = shap_values.values[0, :, 1] if hasattr(shap_values, 'values') else shap_values[0, :, 1]
+        base_value = shap_values.base_values[0, 1]
+    else:
+        sample_shap_value = shap_values.values[0] if hasattr(shap_values, 'values') else shap_values[0]
+        base_value = shap_values.base_values[0]
     
     # Create waterfall plot with feature names
     scaler = trained_model.named_steps['scaler']
     sample_shap_value_with_names = shap.Explanation(
         values=sample_shap_value,
+        base_values=base_value,
         feature_names=scaler.feature_names_in_,
-        data=sample_2d
+        data=sample_2d[0]  # Use flattened data
     )
     shap.plots.waterfall(sample_shap_value_with_names, max_display=10, show=False)
     
