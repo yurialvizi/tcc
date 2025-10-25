@@ -211,6 +211,108 @@ def generate_waterfall_plot(trained_model, sample, model_name, masker=None, scal
 
             # Convert plot to base64
             fig = plt.gcf()
+            
+            # Customize colors: invert the default SHAP colors
+            # Default: red = positive, blue = negative
+            # We want: blue = positive (good credit), red = negative (bad credit)
+            
+            # Set this to False to disable color customization if it causes issues
+            ENABLE_COLOR_CUSTOMIZATION = True
+            
+            BLUE_NORMALIZED = [0., 0.54337757, 0.98337906]
+            RED_NORMALIZED = [1., 0., 0.31796406]
+
+            if ENABLE_COLOR_CUSTOMIZATION:
+                try:
+                    import numpy as np
+                    
+                    def swap_colors(color):
+                        """Helper function to swap red and blue colors"""
+                        try:
+                            if len(color) >= 3:
+                                r, g, b = color[0], color[1], color[2]
+                                alpha = color[3] if len(color) > 3 else 1.0
+                                
+                                # Check if this is a red-ish color (positive SHAP value)
+                                if r > g and r > b and r > 0.5:
+                                    # Convert red to blue
+                                    if len(color) > 3:
+                                        return BLUE_NORMALIZED + [alpha]
+                                    else:
+                                        return BLUE_NORMALIZED
+                                # Check if this is a blue-ish color (negative SHAP value)
+                                elif b > r and b > g and b > 0.5:
+                                    # Convert blue to red
+                                    if len(color) > 3:
+                                        return RED_NORMALIZED + [alpha]
+                                    else:
+                                        return RED_NORMALIZED
+                        except (IndexError, TypeError):
+                            pass
+                        return color
+                    
+                    for ax in fig.get_axes():
+                        # Handle collections (bars, lines, etc.)
+                        for collection in ax.collections:
+                            try:
+                                if hasattr(collection, 'get_facecolors'):
+                                    colors = collection.get_facecolors()
+                                    if len(colors) > 0:
+                                        new_colors = [swap_colors(color) for color in colors]
+                                        collection.set_facecolors(new_colors)
+                                
+                                if hasattr(collection, 'get_edgecolors'):
+                                    colors = collection.get_edgecolors()
+                                    if len(colors) > 0:
+                                        new_colors = [swap_colors(color) for color in colors]
+                                        collection.set_edgecolors(new_colors)
+                            except Exception as e:
+                                logger.warning(f"Error processing collection colors: {e}")
+                                continue
+                        
+                        # Handle patches (rectangles in waterfall plots)
+                        for patch in ax.patches:
+                            try:
+                                if hasattr(patch, 'get_facecolor'):
+                                    color = patch.get_facecolor()
+                                    new_color = swap_colors(color)
+                                    # Use numpy array comparison to avoid ambiguity
+                                    if not np.array_equal(new_color, color):
+                                        patch.set_facecolor(new_color)
+                                
+                                if hasattr(patch, 'get_edgecolor'):
+                                    color = patch.get_edgecolor()
+                                    new_color = swap_colors(color)
+                                    if not np.array_equal(new_color, color):
+                                        patch.set_edgecolor(new_color)
+                            except Exception as e:
+                                logger.warning(f"Error processing patch colors: {e}")
+                                continue
+                        
+                        # Handle text elements
+                        for text in ax.texts:
+                            try:
+                                if hasattr(text, 'get_color'):
+                                    color = text.get_color()
+                                    # Handle matplotlib color objects properly
+                                    if hasattr(color, '__len__') and len(color) >= 3:
+                                        new_color = swap_colors(color)
+                                        # Use numpy array comparison to avoid ambiguity
+                                        if not np.array_equal(new_color, color):
+                                            text.set_color(new_color)
+                                    elif isinstance(color, str):
+                                        # Handle named colors like 'red', 'blue', etc.
+                                        if color.lower() in ['red', 'darkred', 'crimson']:
+                                            text.set_color('blue')
+                                        elif color.lower() in ['blue', 'darkblue', 'navy']:
+                                            text.set_color('red')
+                            except Exception as e:
+                                logger.warning(f"Error processing text colors: {e}")
+                                continue
+                                
+                except Exception as e:
+                    logger.warning(f"Error in color customization: {e}. Proceeding with original colors.")
+            
             img_bytes = io.BytesIO()
             fig.savefig(img_bytes, format='png', bbox_inches='tight', dpi=100)
             img_bytes.seek(0)
