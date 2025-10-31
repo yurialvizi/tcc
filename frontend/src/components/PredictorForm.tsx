@@ -19,7 +19,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { FormData, Profile, predefinedProfiles } from "@/data/profiles";
+import { FormData, predefinedProfiles } from "@/data/profiles";
 import API_CONFIG from "@/lib/api-config";
 
 

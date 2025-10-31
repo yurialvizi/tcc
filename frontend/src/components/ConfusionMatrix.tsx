@@ -62,7 +62,7 @@ export default function ConfusionMatrix({ labels: initialLabels = ["Good", "Bad"
   );
   const [labels, setLabels] = useState<string[]>(initialLabels);
   const [loading, setLoading] = useState<boolean>(!initialMatrix);
-  const [error, setError] = useState<string | null>(null);
+  const [, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (initialMatrix) return; 

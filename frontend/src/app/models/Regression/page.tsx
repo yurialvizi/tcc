@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/sidebar";
 import ConfusionMatrix from "@/components/ConfusionMatrix";
 import ClassificationMetricsTable from "@/components/MetricsTable";
-import { Badge } from "@/components/ui/badge";
 import { Loader2, AlertCircle } from "lucide-react";
 import API_CONFIG from "@/lib/api-config";
 
@@ -163,7 +162,7 @@ export default function Page() {
               reject(e);
             }
           };
-          img.onerror = (ev) => reject(new Error('Failed to load SHAP image'));
+          img.onerror = () => reject(new Error('Failed to load SHAP image'));
           img.src = `data:image/png;base64,${base64}`;
         });
       } catch (err) {

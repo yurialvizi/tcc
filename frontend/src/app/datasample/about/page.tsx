@@ -8,23 +8,19 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import ConfusionMatrix from "@/components/ConfusionMatrix";
-import ClassificationMetricsTable from "@/components/MetricsTable";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, AlertCircle } from "lucide-react";
 import API_CONFIG from "@/lib/api-config";
 
 const fallbackMetrics = {};
 
 export default function Page() {
-  const [metricsData, setMetricsData] = useState<any>(fallbackMetrics);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [, setMetricsData] = useState<any>(fallbackMetrics);
+  const [, setLoading] = useState<boolean>(true);
+  const [, setError] = useState<string | null>(null);
   const [shapSummaryB64, setShapSummaryB64] = useState<string | null>(null);
-  const [shapLoading, setShapLoading] = useState<boolean>(true);
-  const [shapError, setShapError] = useState<string | null>(null);
-  const [processedShapDataUrl, setProcessedShapDataUrl] = useState<string | null>(null);
-  const [shapProcessing, setShapProcessing] = useState<boolean>(false);
+  const [, setShapLoading] = useState<boolean>(true);
+  const [, setShapError] = useState<string | null>(null);
+  const [, setProcessedShapDataUrl] = useState<string | null>(null);
+  const [, setShapProcessing] = useState<boolean>(false);
 
   async function loadShap() {
     setShapLoading(true);
@@ -163,7 +159,7 @@ export default function Page() {
               reject(e);
             }
           };
-          img.onerror = (ev) => reject(new Error('Failed to load SHAP image'));
+          img.onerror = () => reject(new Error('Failed to load SHAP image'));
           img.src = `data:image/png;base64,${base64}`;
         });
       } catch (err) {
@@ -255,8 +251,7 @@ export default function Page() {
                           ['purpose', 'Finalidade do crédito'],
                           ['real_income', 'Renda real (ou transformada)'],
                           ['credit_history', 'Histórico de crédito / pontuação']
-                        ].map(([attr, desc], idx, arr) => {
-                          const last = idx === arr.length - 1;
+                        ].map(([attr, desc], idx) => {
                           return (
                             <tr key={attr + idx} className={idx % 2 === 0 ? 'bg-transparent' : 'bg-muted/10'}>
                               <td className={"px-2 py-1 align-top font-medium border-[0.3px] border-input"}>{attr}</td>
