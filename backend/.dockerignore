@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation
+*.md
+README.md
+GCP_DEPLOYMENT.md
+MEMORY_OPTIMIZATION_GUIDE.md
+TEST_MEMORY.md
+
+# Testing
+test_*.py
+*_test.py
+.pytest_cache/
+
+# Git
+.git/
+.gitignore
+
+# Deployment scripts (not needed in container)
+cloud-run-deploy.sh
+deploy-to-cloud-run.sh
+*.sh
+
+# Environment files
+.env
+.env.local
+
+# Logs
+*.log
+
