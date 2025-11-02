@@ -2,7 +2,7 @@ from datetime import datetime
 import os
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from utils.lazy_model_loader import LazyModelLoader
+from utils.model_loader import ModelLoader
 from utils.predictor import predict_with_models
 from utils.helper import preprocessing
 from utils.shap import generate_waterfall_plot
@@ -21,13 +21,15 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 CORS(app)
 
-# Check and download models and data if needed
-logger.info("🔍 Checking for saved models and data...")
+# Check if models are available (they should be baked into the Docker image)
+# Only download if missing (for local development or if not included in image)
+logger.info("🔍 Checking for saved models...")
 files_available, missing_files = check_models_available()
 
 if not files_available:
-    logger.info(f"📥 Missing files: {missing_files}")
-    logger.info("🚀 Downloading models and data folder from Google Drive...")
+    logger.warning(f"⚠️  Missing model files: {missing_files}")
+    logger.info("🚀 Models not found in image - downloading from Google Drive...")
+    logger.info("💡 Tip: To improve startup performance, include models in Docker image during build")
     download_success = download_models_from_gdrive()
     
     if not download_success:
@@ -36,7 +38,7 @@ if not files_available:
     else:
         logger.info("✅ Files download completed!")
 else:
-    logger.info("✅ All models and data are available locally!")
+    logger.info("✅ All models are available! (loaded from Docker image)")
 
 model_paths = {
     "logistic-regression": "saved_models/logistic_regression.pkl",
@@ -45,9 +47,12 @@ model_paths = {
     "mlp": "saved_models/mlp.pkl",
 }
 
-logger.info("🔄 Initializing lazy model loader...")
-model_loader = LazyModelLoader(model_paths)
-logger.info("✅ Lazy model loader initialized! Models will be loaded on-demand.")
+logger.info("🔄 Initializing model loader (eager loading)...")
+model_loader = ModelLoader(model_paths)
+if model_loader.all_loaded:
+    logger.info("✅ All models loaded successfully and ready for predictions!")
+else:
+    logger.warning("⚠️ Some models failed to load. Check logs above.")
 
 @app.route('/')
 def home():
@@ -116,7 +121,7 @@ def shap_waterfall(model_name):
         validated_sample_df = preprocessing(data)
         validated_sample = validated_sample_df.values[0]  # Convert DataFrame to numpy array
         
-        # Get the model (will load it if needed)
+        # Get the model (already loaded)
         trained_model = model_loader.get_model(model_name)
         scaler = model_loader.get_scaler(model_name)
         
@@ -127,9 +132,6 @@ def shap_waterfall(model_name):
             None,  # masker will be created in the SHAP function if needed
             scaler
         )
-        
-        # Unload the model to free memory
-        model_loader.unload_model(model_name)
         
         return jsonify({"waterfall_plot": waterfall_plot_b64})
     except Exception as e:
@@ -151,7 +153,7 @@ def shap_waterfall_all():
         
         for model_name in model_loader.model_paths.keys():
             try:
-                # Get the model (will load it if needed)
+                # Get the model (already loaded)
                 trained_model = model_loader.get_model(model_name)
                 scaler = model_loader.get_scaler(model_name)
                 shap_data = model_loader.get_shap(model_name)
@@ -165,11 +167,8 @@ def shap_waterfall_all():
                 )
                 waterfall_plots[model_name] = waterfall_plot_b64
                 
-                # Unload the model to free memory
-                model_loader.unload_model(model_name)
-                
             except Exception as e:
-                print(f"Error generating SHAP waterfall plot for {model_name}: {e}")
+                logger.error(f"Error generating SHAP waterfall plot for {model_name}: {e}")
                 waterfall_plots[model_name] = None
         
         return jsonify({"waterfall_plots": waterfall_plots})
@@ -267,12 +266,12 @@ def memory_status():
 
 @app.route('/memory/unload', methods=['POST'])
 def unload_all_models():
-    """Unload all models to free memory"""
-    try:
-        model_loader.unload_all_models()
-        return jsonify({"message": "All models unloaded successfully"})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
+    """Unload all models (disabled - models are kept in memory for optimal performance)"""
+    return jsonify({
+        "message": "Models are kept in memory for optimal performance. Eager loading mode enabled.",
+        "loaded_models": model_loader.get_loaded_models(),
+        "total_models": len(model_loader.model_paths)
+    })
 
 
 if __name__ == '__main__':

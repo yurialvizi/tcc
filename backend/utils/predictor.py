@@ -1,11 +1,11 @@
 def predict_with_models(model_loader, input_data, scalers=None):
     """
-    Predict using lazy-loaded models
+    Predict using pre-loaded models (eager loading)
     """
     results = {}
     for name in model_loader.model_paths.keys():
         try:
-            # Get the model (will load it if needed)
+            # Get the model (already loaded)
             model = model_loader.get_model(name)
             
             # For logistic regression, we need to scale the data

@@ -8,7 +8,12 @@ COPY requirements.txt .
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
+# Copy saved_models and metadata first (these change less frequently)
+# This optimizes Docker layer caching - model changes won't invalidate code layers
+COPY saved_models/ ./saved_models/
+COPY metadata/ ./metadata/
+
+# Copy application code (includes any data/ folder if present)
 COPY . .
 
 EXPOSE 5000

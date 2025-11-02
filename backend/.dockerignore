@@ -48,3 +48,6 @@ deploy-to-cloud-run.sh
 # Logs
 *.log
 
+# Model backups (not needed in production image)
+*.backup
+**/*.backup
