@@ -2,6 +2,8 @@
 
 import React, { JSX, useEffect, useState } from "react";
 import API_CONFIG from "@/lib/api-config";
+import { formatErrorMessage, isNetworkError } from "@/lib/api-utils";
+import { AlertCircle } from "lucide-react";
 
 interface ConfusionMatrixProps {
   labels?: string[];
@@ -58,11 +60,11 @@ function getColorLegend(): JSX.Element {
 
 export default function ConfusionMatrix({ labels: initialLabels = ["Good", "Bad"], matrix: initialMatrix, modelName = 'random-forest' }: ConfusionMatrixProps) {
   const [matrix, setMatrix] = useState<number[][]>(
-    initialMatrix ?? [[50, 10, 5, 2], [8, 45, 3, 1], [3, 2, 40, 7], [1, 4, 6, 35]]
+    initialMatrix ?? [[50, 10], [8, 45]]
   );
   const [labels, setLabels] = useState<string[]>(initialLabels);
   const [loading, setLoading] = useState<boolean>(!initialMatrix);
-  const [, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (initialMatrix) return; 
@@ -92,8 +94,18 @@ export default function ConfusionMatrix({ labels: initialLabels = ["Good", "Bad"
           }
         }
       } catch (err: any) {
-        console.error('Failed to fetch confusion matrix:', err);
-        if (mounted) setError(err?.message ?? String(err));
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Failed to fetch confusion matrix:', err);
+        }
+        if (mounted) {
+          const errorMessage = formatErrorMessage(err);
+          setError(errorMessage);
+          // Use default matrix if network error
+          if (isNetworkError(err)) {
+            setMatrix([[50, 10], [8, 45]]);
+            setLabels(initialLabels);
+          }
+        }
       } finally {
         if (mounted) setLoading(false);
       }
@@ -115,57 +127,68 @@ export default function ConfusionMatrix({ labels: initialLabels = ["Good", "Bad"
         {loading && (
           <div className="absolute z-10 p-4 text-sm text-gray-700">Carregando matriz...</div>
         )}
-        <div className="flex items-center" style={{ height: `${size * 80 + 70}px` }}>
-          <div 
-            className="text-sm text-gray-600 font-medium"
-            style={{
-              writingMode: 'vertical-lr',
-              textOrientation: 'mixed',
-              transform: 'rotate(180deg)'
-            }}
-          >
-            True label
+        {error && !loading && (
+          <div className="flex flex-col items-center justify-center p-6 text-center w-full">
+            <AlertCircle className="h-8 w-8 text-destructive mb-2 opacity-50" />
+            <p className="text-sm text-destructive mb-2">{error}</p>
+            <p className="text-xs text-muted-foreground">Exibindo dados padrão.</p>
           </div>
-        </div>
-        
-        <div className="flex flex-col flex-1">
-          <div className="grid gap-0" style={{
-            gridTemplateColumns: `80px repeat(${size}, 1fr)`
-          }}>
-            <div className="row-span-1 col-span-1"></div>
-            {labels.map((label, i) => (
-              <div key={i} className="text-center text-gray-600 font-medium text-sm p-2 flex items-end justify-center h-10">
-                <span style={{ transformOrigin: 'center' }}>
-                  {label}
-                </span>
+        )}
+        {!error && (
+          <>
+            <div className="flex items-center" style={{ height: `${size * 80 + 70}px` }}>
+              <div 
+                className="text-sm text-gray-600 font-medium"
+                style={{
+                  writingMode: 'vertical-lr',
+                  textOrientation: 'mixed',
+                  transform: 'rotate(180deg)'
+                }}
+              >
+                True label
               </div>
-            ))}
-            {normMatrix.map((row, rowIndex) => (
-              <React.Fragment key={rowIndex}>
-                <div className="text-sm text-gray-600 flex items-center justify-end font-medium pr-2 h-20">
-                  {labels[rowIndex]}
-                </div>
-                {row.map((value, colIndex) => (
-                  <div
-                    key={colIndex}
-                    className="flex items-center justify-center h-20 text-sm font-medium border border-gray-300"
-                    style={{ backgroundColor: getColor(value), color: getContrastColor(value) }}
-                  >
-                    {value.toFixed(2)}
+            </div>
+            
+            <div className="flex flex-col flex-1">
+              <div className="grid gap-0" style={{
+                gridTemplateColumns: `80px repeat(${size}, 1fr)`
+              }}>
+                <div className="row-span-1 col-span-1"></div>
+                {labels.map((label, i) => (
+                  <div key={i} className="text-center text-gray-600 font-medium text-sm p-2 flex items-end justify-center h-10">
+                    <span style={{ transformOrigin: 'center' }}>
+                      {label}
+                    </span>
                   </div>
                 ))}
-              </React.Fragment>
-            ))}
-          </div>
+                {normMatrix.map((row, rowIndex) => (
+                  <React.Fragment key={rowIndex}>
+                    <div className="text-sm text-gray-600 flex items-center justify-end font-medium pr-2 h-20">
+                      {labels[rowIndex]}
+                    </div>
+                    {row.map((value, colIndex) => (
+                      <div
+                        key={colIndex}
+                        className="flex items-center justify-center h-20 text-sm font-medium border border-gray-300"
+                        style={{ backgroundColor: getColor(value), color: getContrastColor(value) }}
+                      >
+                        {value.toFixed(2)}
+                      </div>
+                    ))}
+                  </React.Fragment>
+                ))}
+              </div>
 
-          <div className="text-sm text-gray-600 font-medium text-center mt-1">
-            Predicted label
-          </div>
-        </div>
-        
-        <div className="flex items-center pl-16">
-          {getColorLegend()}
-        </div>
+              <div className="text-sm text-gray-600 font-medium text-center mt-1">
+                Predicted label
+              </div>
+            </div>
+            
+            <div className="flex items-center pl-16">
+              {getColorLegend()}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

@@ -198,7 +198,9 @@ export function PredictorForm({
       const predictionResults = await response.json();
       onResultsChange(predictionResults);
     } catch (error) {
-      console.error("Error making prediction:", error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error making prediction:", error);
+      }
       onResultsChange({ error: "Erro ao fazer predição. Tente novamente." });
     } finally {
       setIsLoading(false);

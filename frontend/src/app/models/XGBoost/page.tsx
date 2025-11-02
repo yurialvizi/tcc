@@ -12,6 +12,8 @@ import ConfusionMatrix from "@/components/ConfusionMatrix";
 import ClassificationMetricsTable from "@/components/MetricsTable";
 import { Loader2, AlertCircle } from "lucide-react";
 import API_CONFIG from "@/lib/api-config";
+import { formatErrorMessage } from "@/lib/api-utils";
+import { Button } from "@/components/ui/button";
 
 const fallbackMetrics = {};
 
@@ -34,8 +36,10 @@ export default function Page() {
       const data = await res.json();
       setShapSummaryB64(data?.summary_plot ?? null);
     } catch (err: any) {
-      console.error("Error loading SHAP summary:", err);
-      setShapError(err?.message || String(err));
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error loading SHAP summary:", err);
+      }
+      setShapError(formatErrorMessage(err));
     } finally {
       setShapLoading(false);
     }
@@ -104,9 +108,11 @@ export default function Page() {
         setError("Resposta inválida da API — usando valores padrão.");
       }
     } catch (err: any) {
-      console.error("Error loading metrics:", err);
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error loading metrics:", err);
+      }
       setMetricsData(fallbackMetrics);
-      setError(err?.message || String(err));
+      setError(formatErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -166,7 +172,9 @@ export default function Page() {
           img.src = `data:image/png;base64,${base64}`;
         });
       } catch (err) {
-        console.error('Error processing SHAP image for transparency:', err);
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error processing SHAP image for transparency:', err);
+        }
         setProcessedShapDataUrl(null);
       } finally {
         if (!cancelled) setShapProcessing(false);
@@ -232,12 +240,19 @@ export default function Page() {
                 {loading ? (
                   <div className="p-4">Carregando métricas...</div>
                 ) : error ? (
-                  <div className="p-6">
-                    <div className="text-red-600 mb-2">Erro: {error}</div>
-                    <button className="btn" onClick={() => load()}>
+                  <div className="p-6 flex flex-col gap-3">
+                    <div className="flex items-center gap-2 text-destructive">
+                      <AlertCircle className="h-5 w-5" />
+                      <div className="text-sm font-medium">{error}</div>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => load()}
+                    >
                       Tentar novamente
-                    </button>
-                    <div className="mt-3">Mostrando dados padrão.</div>
+                    </Button>
+                    <div className="mt-3 text-sm text-muted-foreground">Mostrando dados padrão.</div>
                     <ClassificationMetricsTable metrics={metricsData} />
                   </div>
                 ) : (
@@ -265,9 +280,17 @@ export default function Page() {
                 <span>Carregando gráfico SHAP...</span>
               </div>
             ) : shapError ? (
-              <div className="text-center py-8 text-destructive">
-                <AlertCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p>Erro ao carregar gráfico SHAP: {shapError}</p>
+              <div className="text-center py-8">
+                <AlertCircle className="h-8 w-8 mx-auto mb-2 text-destructive opacity-50" />
+                <p className="text-destructive mb-2">Erro ao carregar gráfico SHAP: {shapError}</p>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => loadShap()}
+                  className="mt-2"
+                >
+                  Tentar novamente
+                </Button>
               </div>
             ) : shapSummaryB64 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">

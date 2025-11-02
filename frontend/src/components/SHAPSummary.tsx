@@ -28,7 +28,9 @@ export default function SHAPSummary({ modelName = 'random-forest' }: SHAPSummary
           setSummaryB64(data?.summary_plot ?? null);
         }
       } catch (err: any) {
-        console.error('Failed to fetch SHAP summary:', err);
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Failed to fetch SHAP summary:', err);
+        }
         if (mounted) setError(err?.message ?? String(err));
       } finally {
         if (mounted) setIsLoading(false);

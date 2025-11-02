@@ -29,21 +29,33 @@ interface MetricsData {
 }
 
 interface ClassificationMetricsTableProps {
-  metrics: MetricsData;
+  metrics: Partial<MetricsData>;
 }
 
 export default function ClassificationMetricsTable({ metrics }: ClassificationMetricsTableProps) {
+  // Provide safe defaults if metrics data is missing
+  const safeMetrics: MetricsData = {
+    classMetrics: metrics.classMetrics || [],
+    accuracy: metrics.accuracy ?? 0,
+    macroAvg: metrics.macroAvg || { precision: 0, recall: 0, f1score: 0 },
+    weightedAvg: metrics.weightedAvg || { precision: 0, recall: 0, f1score: 0 },
+  };
+
   // Buscar métricas da classe '1'
-  const classOne = metrics.classMetrics.find((m) => m.class === '1') || metrics.classMetrics[0];
+  const classOne = safeMetrics.classMetrics.length > 0
+    ? (safeMetrics.classMetrics.find((m) => m.class === '1') || safeMetrics.classMetrics[0])
+    : null;
 
   // Se ainda não existir, montar a partir de weightedAvg como fallback
   const displayMetric = classOne
     ? classOne
     : {
-        precision: metrics.weightedAvg.precision,
-        recall: metrics.weightedAvg.recall,
-        f1score: metrics.weightedAvg.f1score,
-        support: metrics.classMetrics.reduce((sum, m) => sum + m.support, 0),
+        precision: safeMetrics.weightedAvg.precision,
+        recall: safeMetrics.weightedAvg.recall,
+        f1score: safeMetrics.weightedAvg.f1score,
+        support: safeMetrics.classMetrics.length > 0 
+          ? safeMetrics.classMetrics.reduce((sum, m) => sum + m.support, 0)
+          : 0,
       };
 
   return (
@@ -58,7 +70,7 @@ export default function ClassificationMetricsTable({ metrics }: ClassificationMe
         <TableBody>
           <TableRow>
             <TableCell className="text-left font-medium">Accuracy</TableCell>
-            <TableCell className="text-right">{(metrics.accuracy ?? 0).toFixed(4)}</TableCell>
+            <TableCell className="text-right">{(safeMetrics.accuracy ?? 0).toFixed(4)}</TableCell>
           </TableRow>
           <TableRow>
             <TableCell className="text-left font-medium">Precision</TableCell>
