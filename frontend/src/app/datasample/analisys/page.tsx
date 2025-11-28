@@ -5,7 +5,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Page() {
   return (
@@ -30,50 +30,102 @@ export default function Page() {
                 explicação do seu propósito e interpretação principal.
               </p>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-muted/30">
-                <Card className="bg-muted/30">
-                  <CardContent>
-                    <img src="/exploratory/age_distribution.png" alt="Age distribution" className="w-full rounded-md" />
-                  </CardContent>
-                </Card>
+              <div className="flex flex-col gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Card className="bg-transparent border shadow-sm">
+                    <CardHeader>
+                      <CardTitle className="text-lg">Distribuição de Idade</CardTitle>
+                      <CardDescription>
+                        Visualização da distribuição etária dos clientes. Permite identificar a faixa de idade mais comum e detectar outliers.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <img src="/exploratory/age_distribution.png" alt="Age distribution" className="w-full rounded-md" />
+                    </CardContent>
+                  </Card>
 
-                <Card className="bg-muted/30">
-                  <CardContent>
-                    <img src="/exploratory/sex_vs_risk.png" alt="Sex x Risk" className="w-full rounded-md" />
-                  </CardContent>
-                </Card>
+                  <Card className="bg-transparent border shadow-sm">
+                    <CardHeader>
+                      <CardTitle className="text-lg">Sexo vs Risco de Crédito</CardTitle>
+                      <CardDescription>
+                        Análise comparativa do risco de crédito entre diferentes gêneros, permitindo avaliar se existe correlação entre essas variáveis.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <img src="/exploratory/sex_vs_risk.png" alt="Sex x Risk" className="w-full rounded-md" />
+                    </CardContent>
+                  </Card>
+                </div>
 
-                <Card className="bg-muted/30">
+                <Card className="bg-transparent border shadow-sm">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Valor do Crédito vs Risco</CardTitle>
+                    <CardDescription>
+                      Relação entre o montante de crédito solicitado e o nível de risco. Ajuda a identificar se valores mais altos apresentam maior risco de inadimplência.
+                    </CardDescription>
+                  </CardHeader>
                   <CardContent>
                     <img src="/exploratory/credit_amount_vs_risk.png" alt="Credit amount vs Risk" className="w-full rounded-md" />
                   </CardContent>
                 </Card>
 
-                <Card className="bg-muted/30">
-                  <CardContent>
-                    <img src="/exploratory/jobs_vs_risk.png" alt="Jobs x Risk" className="w-full rounded-md" />
-                  </CardContent>
-                </Card>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Card className="bg-transparent border shadow-sm">
+                    <CardHeader>
+                      <CardTitle className="text-lg">Ocupação vs Risco de Crédito</CardTitle>
+                      <CardDescription>
+                        Distribuição do risco por tipo de ocupação profissional. Permite identificar quais setores apresentam maior ou menor risco de crédito.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <img src="/exploratory/jobs_vs_risk.png" alt="Jobs x Risk" className="w-full rounded-md" />
+                    </CardContent>
+                  </Card>
 
-                <Card className="bg-muted/30">
-                  <CardContent>
-                    <img src="/exploratory/employee_since_vs_risk.png" alt="Employee since vs Risk" className="w-full rounded-md" />
-                  </CardContent>
-                </Card>
+                  <Card className="bg-transparent border shadow-sm">
+                    <CardHeader>
+                      <CardTitle className="text-lg">Tempo de Emprego vs Risco</CardTitle>
+                      <CardDescription>
+                        Análise da relação entre estabilidade no emprego e risco de crédito. Tempo maior de emprego pode indicar maior estabilidade financeira.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <img src="/exploratory/employee_since_vs_risk.png" alt="Employee since vs Risk" className="w-full rounded-md" />
+                    </CardContent>
+                  </Card>
 
-                <Card className="bg-muted/30">
-                  <CardContent>
-                    <img src="/exploratory/savings_vs_risk.png" alt="Savings x Risk" className="w-full rounded-md" />
-                  </CardContent>
-                </Card>
+                  <Card className="bg-transparent border shadow-sm">
+                    <CardHeader>
+                      <CardTitle className="text-lg">Poupança vs Risco de Crédito</CardTitle>
+                      <CardDescription>
+                        Relação entre o volume de poupança e o risco de inadimplência. Clientes com mais reservas tendem a apresentar menor risco.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <img src="/exploratory/savings_vs_risk.png" alt="Savings x Risk" className="w-full rounded-md" />
+                    </CardContent>
+                  </Card>
 
-                <Card className="bg-muted/30">
-                  <CardContent>
-                    <img src="/exploratory/checking_account_vs_risk.png" alt="Checking account x Risk" className="w-full rounded-md" />
-                  </CardContent>
-                </Card>
+                  <Card className="bg-transparent border shadow-sm">
+                    <CardHeader>
+                      <CardTitle className="text-lg">Conta Corrente vs Risco</CardTitle>
+                      <CardDescription>
+                        Análise do saldo em conta corrente em relação ao risco. Saldos mais altos geralmente indicam melhor capacidade de pagamento.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <img src="/exploratory/checking_account_vs_risk.png" alt="Checking account x Risk" className="w-full rounded-md" />
+                    </CardContent>
+                  </Card>
+                </div>
 
-                <Card className="bg-muted/30">
+                <Card className="bg-transparent border shadow-sm">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Matriz de Correlação</CardTitle>
+                    <CardDescription>
+                      Visualização das correlações entre todas as variáveis numéricas do dataset. Permite identificar relações lineares entre features.
+                    </CardDescription>
+                  </CardHeader>
                   <CardContent>
                     <img src="/exploratory/correlation_matrix.png" alt="Correlation matrix" className="w-full rounded-md" />
                   </CardContent>

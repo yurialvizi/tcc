@@ -14,6 +14,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import textwrap
+from matplotlib.colors import LinearSegmentedColormap
 
 
 OUT_DIR = Path(__file__).resolve().parents[2] / 'frontend' / 'public' / 'exploratory'
@@ -42,7 +43,7 @@ def generate_secondary_plot(df, group_by, custom_order=None):
         risk_counts = risk_counts.reindex(custom_order)
         total_counts = total_counts.reindex(custom_order)
 
-    fig, ax = plt.subplots(figsize=(8, 5))
+    fig, ax = plt.subplots(figsize=(8, 4))
     ax = total_counts.plot(kind='bar', color='#4538FF', ax=ax)
     ax.set_ylabel('# Customers')
     ax.set_xlabel(f'{group_by.capitalize()}')
@@ -74,7 +75,7 @@ def generate_credit_amount_plot(df):
     credit_bin_plot = pd.merge(bad_risk_in_credit_bin.to_frame(name='bad_risk_in_credit_bin'), bad_risk_percentage.to_frame(name='bad_risk_percentage'), left_index=True, right_index=True, how='inner')
     credit_bin_plot.drop(credit_bin_plot[credit_bin_plot['bad_risk_percentage']==0].index, inplace=True)
 
-    fig, ax1 = plt.subplots(figsize=(10, 6))
+    fig, ax1 = plt.subplots(figsize=(16, 4))
     credit_bin_plot.index = credit_bin_plot.index.astype(str)
     ax1.plot(credit_bin_plot.index, credit_bin_plot['bad_risk_in_credit_bin'], color='#4538FF', label='Bad Risk Cumulative')
     ax1.set_xlabel('Credit Amount Interval')
@@ -123,9 +124,16 @@ def generate_correlation_matrix(df):
 
     df_dummies = pd.get_dummies(df_local, dtype=int)
 
-    fig, ax = plt.subplots(figsize=(10, 8))
+    # Create custom colormap: blue (negative) -> white (zero) -> pink (positive)
+    cor_negativa = (69/255, 56/255, 255/255, 1)   # azul
+    cor_positiva = (250/255, 70/255, 148/255, 1)  # rosa
+    colors = [cor_negativa, 'white', cor_positiva]
+    n_bins = 100
+    cmap = LinearSegmentedColormap.from_list('custom', colors, N=n_bins)
+
+    fig, ax = plt.subplots(figsize=(10,10))
     corr = df_dummies.corr()
-    im = ax.imshow(corr, cmap='coolwarm', vmin=-1, vmax=1)
+    im = ax.imshow(corr, cmap=cmap, vmin=-1, vmax=1)
     ax.set_xticks(range(len(corr.columns)))
     ax.set_xticklabels(corr.columns, rotation=90, fontsize=8)
     ax.set_yticks(range(len(corr.columns)))

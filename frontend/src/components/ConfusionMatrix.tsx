@@ -46,7 +46,7 @@ function getContrastColor(value: number): string {
 
 function getColorLegend(): JSX.Element {
   const start = 'rgba(69, 56, 255, 1)';
-  const end = 'rgba(255, 43, 128, 1)';
+  const end = 'rgba(250, 70, 142, 1)';
   return (
     <div className="flex flex-col items-center">
       <div className="text-xs text-gray-700 mb-1">1.0</div>
