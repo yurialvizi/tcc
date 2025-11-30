@@ -95,12 +95,12 @@ const data = {
   projects: [
     {
       name: "GitHub",
-      url: "#",
+      url: "https://github.com/yurialvizi/tcc",
       icon: FolderGit2,
     },
     {
       name: "Monografia",
-      url: "#",
+      url: "https://yurialvizi.github.io/tcc/monografia.pdf",
       icon: BookOpen,
     },
   ],
@@ -114,18 +114,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
         <div className="mt-auto p-3 w-full flex justify-center">
           <div className="flex gap-2">
-            <Button asChild variant="ghost" className="h-10 px-3 gap-1">
-              <a href="/export" aria-label="Exportar">
-                <Github className="w-4 h-4" />
-                <span className="text-sm">Github</span>
-              </a>
-            </Button>
-            <Button asChild variant="ghost" className="h-10 px-3 gap-1">
-              <a href="/settings" aria-label="Configurações">
-                <Bookmark className="w-4 h-4" />
-                <span className="text-sm">Monografia</span>
-              </a>
-            </Button>
+            {data.projects.map((project) => (
+              <Button
+                asChild
+                key={project.name}
+                variant="ghost"
+                className="h-10 px-3 gap-1"
+              >
+                <a
+                  href={project.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={project.name}
+                >
+                  <project.icon className="w-4 h-4" />
+                  <span className="text-sm">{project.name}</span>
+                </a>
+              </Button>
+            ))}
           </div>
         </div>
       </SidebarContent>
