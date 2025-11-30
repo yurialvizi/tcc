@@ -96,12 +96,12 @@ const data = {
     {
       name: "GitHub",
       url: "https://github.com/yurialvizi/tcc",
-      icon: FolderGit2,
+      icon: Github,
     },
     {
       name: "Monografia",
       url: "https://yurialvizi.github.io/tcc/monografia.pdf",
-      icon: BookOpen,
+      icon: Bookmark,
     },
   ],
 };
