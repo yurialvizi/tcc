@@ -134,7 +134,7 @@ export default function ConfusionMatrix({ labels: initialLabels = ["Good", "Bad"
             <p className="text-xs text-muted-foreground">Exibindo dados padrão.</p>
           </div>
         )}
-        {!error && (
+        {!error && !loading && (
           <>
             <div className="flex items-center" style={{ height: `${size * 80 + 70}px` }}>
               <div 
