@@ -69,10 +69,10 @@ export default function Page() {
                 </h2>
 
                 <ul className="list-disc list-inside mb-3 ml-4">
-                  <li><u>Robustez ao Overfitting:</u> A combinação de múltiplas árvores reduz significativamente a variância do modelo, melhorando a capacidade de generalização.</li>
-                  <li><u>Análise de Importância de Features:</u> Fornece métricas quantitativas sobre a relevância de cada variável no processo decisório, auxiliando na seleção de features e interpretação de resultados.</li>
-                  <li><u>Versatilidade:</u> Manuseia eficientemente dados tabulares heterogêneos, incluindo variáveis numéricas e categóricas, com tratamento nativo de valores ausentes</li>
-                  <li><u>Paralelização Natural:</u> O treinamento de árvores individuais pode ser paralelizado, reduzindo o tempo de processamento</li>
+                  <li>Robustez ao Overfitting: A combinação de múltiplas árvores reduz significativamente a variância do modelo, melhorando a capacidade de generalização.</li>
+                  <li>Análise de Importância de Features: Fornece métricas quantitativas sobre a relevância de cada variável no processo decisório, auxiliando na seleção de features e interpretação de resultados.</li>
+                  <li>Versatilidade: Manuseia eficientemente dados tabulares heterogêneos, incluindo variáveis numéricas e categóricas, com tratamento nativo de valores ausentes</li>
+                  <li>Paralelização Natural: O treinamento de árvores individuais pode ser paralelizado, reduzindo o tempo de processamento</li>
                 </ul>
 
                 <h2 className="text-lg font-semibold mb-1 text-gray-800">

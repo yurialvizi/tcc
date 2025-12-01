@@ -61,7 +61,7 @@ export default function Page() {
               <h1 className="text-3xl font-bold mb-2">XGBoost</h1>
               <div className="text-sm ">
                 <p className="mb-1 ">
-                  &nbsp;&nbsp;O XGBoost (Extreme Gradient Boosting) é uma implementação do algoritmo de gradient boosting, que constrói árvores de decisão de forma sequencial, em que cada nova árvore é treinada para corrigir os erros residuais das anteriores, ajustando o modelo por meio do gradiente descendente aplicado a uma função de perda.Diferencia-se por incorporar mecanismos avançados de regularização (L1 e L2), que ajudam a controlar a complexidade e evitar o sobreajuste, além de um processo de pruning inteligente que elimina divisões pouco relevantes.
+                  &nbsp;&nbsp;O XGBoost (Extreme Gradient Boosting) é uma implementação do algoritmo de gradient boosting, que constrói árvores de decisão de forma sequencial, em que cada nova árvore é treinada para corrigir os erros residuais das anteriores, ajustando o modelo por meio do gradiente descendente aplicado a uma função de perda. Diferencia-se por incorporar mecanismos avançados de regularização (L1 e L2), que ajudam a controlar a complexidade e evitar o overfitting, além de um processo de pruning inteligente que elimina divisões pouco relevantes.
                 </p>
 
                 <h2 className="text-lg font-semibold mb-1 text-gray-800">
