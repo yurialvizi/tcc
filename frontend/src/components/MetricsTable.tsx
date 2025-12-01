@@ -10,15 +10,18 @@ import {
 interface ClassMetric {
   class: string;
   precision: number;
-  recall: number;
+  specificity: number;
   f1score: number;
-  support: number;
+  recall: number;
+  training_time: number;
 }
 
 interface AvgMetric {
   precision: number;
   recall: number;
   f1score: number;
+  specificity: number;
+  training_time: number;
 }
 
 interface MetricsData {
@@ -37,8 +40,8 @@ export default function ClassificationMetricsTable({ metrics }: ClassificationMe
   const safeMetrics: MetricsData = {
     classMetrics: metrics.classMetrics || [],
     accuracy: metrics.accuracy ?? 0,
-    macroAvg: metrics.macroAvg || { precision: 0, recall: 0, f1score: 0 },
-    weightedAvg: metrics.weightedAvg || { precision: 0, recall: 0, f1score: 0 },
+    macroAvg: metrics.macroAvg || { precision: 0, recall: 0, f1score: 0, specificity: 0, training_time: 0 },
+    weightedAvg: metrics.weightedAvg || { precision: 0, recall: 0, f1score: 0, specificity: 0, training_time: 0 },
   };
 
   // Buscar métricas da classe '1'
@@ -53,9 +56,8 @@ export default function ClassificationMetricsTable({ metrics }: ClassificationMe
         precision: safeMetrics.weightedAvg.precision,
         recall: safeMetrics.weightedAvg.recall,
         f1score: safeMetrics.weightedAvg.f1score,
-        support: safeMetrics.classMetrics.length > 0 
-          ? safeMetrics.classMetrics.reduce((sum, m) => sum + m.support, 0)
-          : 0,
+        specificity: safeMetrics.weightedAvg.specificity,
+        training_time: safeMetrics.weightedAvg.training_time,
       };
 
   return (
@@ -63,30 +65,34 @@ export default function ClassificationMetricsTable({ metrics }: ClassificationMe
       <Table className="w-full max-w-xs">
         <TableHeader>
           <TableRow>
-            <TableHead className="text-left">Metric</TableHead>
-            <TableHead className="text-right">Value</TableHead>
+            <TableHead className="text-left">Métrica</TableHead>
+            <TableHead className="text-right">Valor</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           <TableRow>
-            <TableCell className="text-left font-medium">Accuracy</TableCell>
+            <TableCell className="text-left font-medium">Acurácia</TableCell>
             <TableCell className="text-right">{(safeMetrics.accuracy ?? 0).toFixed(4)}</TableCell>
           </TableRow>
           <TableRow>
-            <TableCell className="text-left font-medium">Precision</TableCell>
+            <TableCell className="text-left font-medium">Recall</TableCell>
+            <TableCell className="text-right">{(displayMetric.recall).toFixed(4)}</TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className="text-left font-medium">Especificidade</TableCell>
+            <TableCell className="text-right">{(displayMetric.specificity ?? 0).toFixed(4)}</TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className="text-left font-medium">Precisão</TableCell>
             <TableCell className="text-right">{(displayMetric.precision).toFixed(4)}</TableCell>
           </TableRow>
           <TableRow>
-            <TableCell className="text-left font-medium">Recall</TableCell>
-            <TableCell className="text-right">{(displayMetric.recall ).toFixed(4)}</TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell className="text-left font-medium">F1-score</TableCell>
+            <TableCell className="text-left font-medium">F1-Score</TableCell>
             <TableCell className="text-right">{(displayMetric.f1score).toFixed(4)}</TableCell>
           </TableRow>
           <TableRow>
-            <TableCell className="text-left font-medium">Support</TableCell>
-            <TableCell className="text-right">{Number(displayMetric.support).toLocaleString()}</TableCell>
+            <TableCell className="text-left font-medium">Tempo de Treino</TableCell>
+            <TableCell className="text-right">{(displayMetric.training_time ?? 0).toFixed(2)}s</TableCell>
           </TableRow>
         </TableBody>
       </Table>

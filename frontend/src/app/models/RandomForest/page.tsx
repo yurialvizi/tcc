@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -10,183 +9,37 @@ import {
 } from "@/components/ui/sidebar";
 import ConfusionMatrix from "@/components/ConfusionMatrix";
 import ClassificationMetricsTable from "@/components/MetricsTable";
-import { Loader2, AlertCircle } from "lucide-react";
-import API_CONFIG from "@/lib/api-config";
-import { formatErrorMessage } from "@/lib/api-utils";
-import { Button } from "@/components/ui/button";
-
-const fallbackMetrics = {};
+import { randomForestMetrics } from "@/data/model-metrics";
 
 export default function Page() {
-  const [metricsData, setMetricsData] = useState<any>(fallbackMetrics);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [shapSummaryB64, setShapSummaryB64] = useState<string | null>(null);
-  const [shapLoading, setShapLoading] = useState<boolean>(true);
-  const [shapError, setShapError] = useState<string | null>(null);
-  const [processedShapDataUrl, setProcessedShapDataUrl] = useState<string | null>(null);
-  const [shapProcessing, setShapProcessing] = useState<boolean>(false);
-
-  async function loadShap() {
-    setShapLoading(true);
-    setShapError(null);
-    try {
-      const res = await fetch(`${API_CONFIG.SHAP_BASE_URL}/shap/plots/random-forest`);
-      if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
-      const data = await res.json();
-      setShapSummaryB64(data?.summary_plot ?? null);
-    } catch (err: any) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error("Error loading SHAP summary:", err);
-      }
-      setShapError(formatErrorMessage(err));
-    } finally {
-      setShapLoading(false);
-    }
-  }
-
-  async function load() {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch(`${API_CONFIG.SHAP_BASE_URL}/metrics/random-forest`);
-      if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
-      const data = await res.json();
-      if (data && data.classification_report) {
-        const cr = data.classification_report;
-
-        const classKeys = Object.keys(cr).filter(
-          (k) => k !== "accuracy" && k !== "macro avg" && k !== "weighted avg"
-        );
-
-        const classMetrics = classKeys.map((k) => {
-          const entry = cr[k] || {};
-          return {
-            class: String(k),
-            precision: Number(entry.precision ?? entry["precision"] ?? 0),
-            recall: Number(entry.recall ?? entry["recall"] ?? 0),
-            f1score: Number(entry["f1-score"] ?? entry.f1score ?? 0),
-            support: Number(entry.support ?? entry["support"] ?? 0),
-          };
-        });
-
-        const mapped = {
-          classMetrics,
-          accuracy: Number(cr.accuracy ?? 0),
-          macroAvg: {
-            precision: Number(
-              cr["macro avg"]?.precision ?? cr["macro avg"]?.["precision"] ?? 0
-            ),
-            recall: Number(
-              cr["macro avg"]?.recall ?? cr["macro avg"]?.["recall"] ?? 0
-            ),
-            f1score: Number(
-              cr["macro avg"]?.["f1-score"] ?? cr["macro avg"]?.f1score ?? 0
-            ),
-          },
-          weightedAvg: {
-            precision: Number(
-              cr["weighted avg"]?.precision ??
-                cr["weighted avg"]?.["precision"] ??
-                0
-            ),
-            recall: Number(
-              cr["weighted avg"]?.recall ?? cr["weighted avg"]?.["recall"] ?? 0
-            ),
-            f1score: Number(
-              cr["weighted avg"]?.["f1-score"] ??
-                cr["weighted avg"]?.f1score ??
-                0
-            ),
-          },
-        };
-
-        setMetricsData(mapped);
-
-      } else {
-        setMetricsData(fallbackMetrics);
-        setError("Resposta inválida da API — usando valores padrão.");
-      }
-    } catch (err: any) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error("Error loading metrics:", err);
-      }
-      setMetricsData(fallbackMetrics);
-      setError(formatErrorMessage(err));
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    load();
-    loadShap();
-  }, []);
-
-  useEffect(() => {
-    if (!shapSummaryB64) {
-      setProcessedShapDataUrl(null);
-      return;
-    }
-
-    let cancelled = false;
-
-    async function processBackgroundToTransparent(base64: string) {
-      setShapProcessing(true);
-      try {
-        await new Promise<void>((resolve, reject) => {
-          const img = new Image();
-          img.onload = () => {
-            try {
-              const canvas = document.createElement('canvas');
-              canvas.width = img.width;
-              canvas.height = img.height;
-              const ctx = canvas.getContext('2d');
-              if (!ctx) return reject(new Error('Canvas not supported'));
-              ctx.drawImage(img, 0, 0);
-              try {
-                const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                const data = imgData.data;
-                const threshold = 250;
-                for (let i = 0; i < data.length; i += 4) {
-                  const r = data[i];
-                  const g = data[i + 1];
-                  const b = data[i + 2];
-                  if (r >= threshold && g >= threshold && b >= threshold) {
-                    data[i + 3] = 0;
-                  }
-                }
-                ctx.putImageData(imgData, 0, 0);
-              } catch (e) {
-                console.warn('Could not access image data to make background transparent', e);
-              }
-
-              const processed = canvas.toDataURL('image/png');
-              if (!cancelled) setProcessedShapDataUrl(processed);
-              resolve();
-            } catch (e) {
-              reject(e);
-            }
-          };
-          img.onerror = () => reject(new Error('Failed to load SHAP image'));
-          img.src = `data:image/png;base64,${base64}`;
-        });
-      } catch (err) {
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Error processing SHAP image for transparency:', err);
-        }
-        setProcessedShapDataUrl(null);
-      } finally {
-        if (!cancelled) setShapProcessing(false);
-      }
-    }
-
-    processBackgroundToTransparent(shapSummaryB64);
-
-    return () => {
-      cancelled = true;
-    };
-  }, [shapSummaryB64]);
+  // Use local metrics data - transform simplified structure to match MetricsTable expectations
+  const cr = randomForestMetrics.classification_report;
+  
+  const metricsData = {
+    classMetrics: [{
+      class: "1",
+      precision: cr.precision,
+      recall: cr.recall,
+      f1score: cr.f1score,
+      specificity: cr.specificity,
+      training_time: cr.training_time,
+    }],
+    accuracy: cr.accuracy,
+    macroAvg: {
+      precision: cr.precision,
+      recall: cr.recall,
+      f1score: cr.f1score,
+      specificity: cr.specificity,
+      training_time: cr.training_time,
+    },
+    weightedAvg: {
+      precision: cr.precision,
+      recall: cr.recall,
+      f1score: cr.f1score,
+      specificity: cr.specificity,
+      training_time: cr.training_time,
+    },
+  };
 
   return (
     <SidebarProvider>
@@ -237,34 +90,14 @@ export default function Page() {
             <div className="flex flex-col gap-4 h-full">
               <div className="bg-muted/30 rounded-xl p-4 flex flex-col items-start flex-1">
                 <h1 className="text-3xl font-bold mb-1 ml-2">Métricas</h1>
-                {loading ? (
-                  <div className="p-4">Carregando métricas...</div>
-                ) : error ? (
-                  <div className="p-6 flex flex-col gap-3">
-                    <div className="flex items-center gap-2 text-destructive">
-                      <AlertCircle className="h-5 w-5" />
-                      <div className="text-sm font-medium">{error}</div>
-                    </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => load()}
-                    >
-                      Tentar novamente
-                    </Button>
-                    <div className="mt-3 text-sm text-muted-foreground">Mostrando dados padrão.</div>
-                    <ClassificationMetricsTable metrics={metricsData} />
-                  </div>
-                ) : (
-                  <ClassificationMetricsTable metrics={metricsData} />
-                )}
+                <ClassificationMetricsTable metrics={metricsData} />
               </div>
 
               <div className="bg-muted/30 rounded-xl p-4 flex flex-col items-start flex-1">
                 <h1 className="text-3xl font-bold ml-2">Matriz de Confusão</h1>
                 <ConfusionMatrix
                   labels={["Good", "Bad"]}
-                  modelName="random-forest"
+                  matrix={randomForestMetrics.confusion_matrix}
                 />
               </div>
             </div>
@@ -274,57 +107,28 @@ export default function Page() {
               <h1 className="text-3xl font-bold mb-2">Feature Importance</h1>
             </div>
 
-            {shapLoading ? (
-              <div className="flex items-center justify-center p-8">
-                <Loader2 className="animate-spin mr-2" />
-                <span>Carregando gráfico SHAP...</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+              <div className="text-sm text-muted-foreground order-1 md:order-1">
+                <h3 className="text-lg font-semibold mb-2">O que é este gráfico?</h3>
+                <p className="mb-2">
+                  O gráfico de summary do SHAP mostra a importância média das features para o modelo. Cada ponto
+                  representa uma observação e sua contribuição para a predição; pontos à direita aumentam a probabilidade
+                  da classe positiva, enquanto pontos à esquerda diminuem.
+                </p>
+                <p className="mb-1">
+                  As cores normalmente representam o valor da feature (alto/baixo). Este gráfico dá uma visão global da
+                  importância e direção do efeito das variáveis.
+                </p>
               </div>
-            ) : shapError ? (
-              <div className="text-center py-8">
-                <AlertCircle className="h-8 w-8 mx-auto mb-2 text-destructive opacity-50" />
-                <p className="text-destructive mb-2">Erro ao carregar gráfico SHAP: {shapError}</p>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => loadShap()}
-                  className="mt-2"
-                >
-                  Tentar novamente
-                </Button>
-              </div>
-            ) : shapSummaryB64 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-                <div className="text-sm text-muted-foreground order-1 md:order-1">
-                  <h3 className="text-lg font-semibold mb-2">O que é este gráfico?</h3>
-                  <p className="mb-2">
-                    O gráfico de summary do SHAP mostra a importância média das features para o modelo. Cada ponto
-                    representa uma observação e sua contribuição para a predição; pontos à direita aumentam a probabilidade
-                    da classe positiva, enquanto pontos à esquerda diminuem.
-                  </p>
-                  <p className="mb-1">
-                    As cores normalmente representam o valor da feature (alto/baixo). Este gráfico dá uma visão global da
-                    importância e direção do efeito das variáveis.
-                  </p>
-                </div>
 
-                <div className="order-2 md:order-2 rounded-lg p-2 bg-muted/30 flex items-center justify-center overflow-visible min-h-[360px] relative">
-                  {shapProcessing && (
-                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/20">
-                      <div className="text-white">Processando imagem...</div>
-                    </div>
-                  )}
-                  <img
-                    src={processedShapDataUrl ?? `data:image/png;base64,${shapSummaryB64}`}
-                    alt={`SHAP summary plot for random-forest`}
-                    className="h-auto object-contain md:w-[120%]"
-                  />
-                </div>
+              <div className="order-2 md:order-2 rounded-lg p-2 bg-muted/30 flex items-center justify-center overflow-visible min-h-[360px] relative">
+                <img
+                  src="/shap_feature_importance/randomForest.png"
+                  alt="SHAP summary plot for random-forest"
+                  className="h-auto object-contain md:w-[120%]"
+                />
               </div>
-            ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                <p>Nenhum gráfico SHAP disponível para este modelo.</p>
-              </div>
-            )}
+            </div>
           </div>
         </div>
       </SidebarInset>

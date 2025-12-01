@@ -12,13 +12,6 @@ interface ConfusionMatrixProps {
   modelName?: string;
 }
 
-function normalizeMatrix(matrix: number[][]): number[][] {
-  return matrix.map((row) => {
-    const rowSum = row.reduce((sum, val) => sum + val, 0);
-    return row.map((val) => (rowSum > 0 ? val / rowSum : 0));
-  });
-}
-
 function getColor(value: number): string {
   // kept for backwards compatibility; use getRgbFromValue internally
   const [r, g, b] = getRgbFromValue(value);
@@ -58,83 +51,16 @@ function getColorLegend(): JSX.Element {
   );
 }
 
-export default function ConfusionMatrix({ labels: initialLabels = ["Good", "Bad"], matrix: initialMatrix, modelName = 'random-forest' }: ConfusionMatrixProps) {
-  const [matrix, setMatrix] = useState<number[][]>(
-    initialMatrix ?? [[50, 10], [8, 45]]
-  );
-  const [labels, setLabels] = useState<string[]>(initialLabels);
-  const [loading, setLoading] = useState<boolean>(!initialMatrix);
-  const [error, setError] = useState<string | null>(null);
+export default function ConfusionMatrix({ labels: initialLabels = ["Good", "Bad"], matrix: initialMatrix, }: ConfusionMatrixProps) {
+  const [labels] = useState(initialLabels);
+  const [matrix] = useState(initialMatrix);
 
-  useEffect(() => {
-    if (initialMatrix) return; 
-
-    let mounted = true;
-
-    async function load() {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await fetch(`${API_CONFIG.SHAP_BASE_URL}/metrics/${modelName}`);
-        if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
-        const data = await res.json();
-
-        if (data && data.confusion_matrix && Array.isArray(data.confusion_matrix)) {
-          if (mounted) setMatrix(data.confusion_matrix as number[][]);
-        }
-
-        if (data && data.classification_report) {
-          const cr = data.classification_report;
-          const classKeys = Object.keys(cr).filter(
-            (k) => k !== 'accuracy' && k !== 'macro avg' && k !== 'weighted avg'
-          );
-          if (classKeys.length > 0 && mounted) {
-            const newLabels = classKeys.map((k) => (k === '0' ? 'Good' : k === '1' ? 'Bad' : k));
-            setLabels(newLabels);
-          }
-        }
-      } catch (err: any) {
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Failed to fetch confusion matrix:', err);
-        }
-        if (mounted) {
-          const errorMessage = formatErrorMessage(err);
-          setError(errorMessage);
-          // Use default matrix if network error
-          if (isNetworkError(err)) {
-            setMatrix([[50, 10], [8, 45]]);
-            setLabels(initialLabels);
-          }
-        }
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    }
-
-    load();
-
-    return () => {
-      mounted = false;
-    };
-  }, [initialMatrix, modelName]);
-
-  const normMatrix = normalizeMatrix(matrix);
   const size = labels.length;
 
   return (
     <div className="w-full bg-muted/40 flex items-start justify-center">
       <div className="flex items-start justify-center w-full">
-        {loading && (
-          <div className="absolute z-10 p-4 text-sm text-gray-700">Carregando matriz...</div>
-        )}
-        {error && !loading && (
-          <div className="flex flex-col items-center justify-center p-6 text-center w-full">
-            <AlertCircle className="h-8 w-8 text-destructive mb-2 opacity-50" />
-            <p className="text-sm text-destructive mb-2">{error}</p>
-            <p className="text-xs text-muted-foreground">Exibindo dados padrão.</p>
-          </div>
-        )}
-        {!error && !loading && (
+        {matrix ? (
           <>
             <div className="flex items-center" style={{ height: `${size * 80 + 70}px` }}>
               <div 
@@ -145,7 +71,7 @@ export default function ConfusionMatrix({ labels: initialLabels = ["Good", "Bad"
                   transform: 'rotate(180deg)'
                 }}
               >
-                True label
+                Valor real
               </div>
             </div>
             
@@ -161,7 +87,7 @@ export default function ConfusionMatrix({ labels: initialLabels = ["Good", "Bad"
                     </span>
                   </div>
                 ))}
-                {normMatrix.map((row, rowIndex) => (
+                {matrix.map((row, rowIndex) => (
                   <React.Fragment key={rowIndex}>
                     <div className="text-sm text-gray-600 flex items-center justify-end font-medium pr-2 h-20">
                       {labels[rowIndex]}
@@ -177,17 +103,29 @@ export default function ConfusionMatrix({ labels: initialLabels = ["Good", "Bad"
                     ))}
                   </React.Fragment>
                 ))}
+                <div
+                  style={{
+                    gridColumn: `2 / span ${size}`,
+                    justifySelf: 'center',
+                    marginTop: '8px'
+                  }}
+                  className="text-sm text-gray-600 font-medium text-center"
+                >
+                  Valor previsto
+                </div>
               </div>
 
-              <div className="text-sm text-gray-600 font-medium text-center mt-1">
-                Predicted label
-              </div>
             </div>
             
             <div className="flex items-center pl-16">
               {getColorLegend()}
             </div>
           </>
+        ) : (
+          <div className="flex flex-col items-center justify-center p-6 text-center w-full">
+            <AlertCircle className="h-8 w-8 text-destructive mb-2 opacity-50" />
+            <p className="text-sm text-destructive mb-2">Não foi possível carregar a matriz de confusão</p>
+          </div>
         )}
       </div>
     </div>
