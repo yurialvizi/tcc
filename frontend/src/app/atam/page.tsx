@@ -104,9 +104,7 @@ export default function Page() {
             {/* PARTE 2 — APLICAÇÃO DO ATAM (9 passos) */}
             {/* =================================== */}
             <section className="w-full flex flex-col gap-10">
-              <h2 className="text-2xl font-bold py-6 md:py-10">
-                Aplicação do ATAM aos resultados obtidos
-              </h2>
+            <h2 className="text-2xl font-bold my-1 md:my-2">Aplicação do ATAM aos resultados obtidos</h2>
 
               <div className="flex flex-col gap-6 w-full">
                 {/* PASSO 1 */}
